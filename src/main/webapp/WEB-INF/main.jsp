@@ -9,5 +9,6 @@
 </head>
 <body>
 <h1>商品一覧</h1>
+<h2>一覧</h2>
 </body>
 </html>
