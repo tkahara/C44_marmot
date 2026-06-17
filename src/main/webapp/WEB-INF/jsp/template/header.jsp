@@ -12,7 +12,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
         <div class="container">
             
-            <a class="navbar-brand fw-bold" href="main.jsp">🛒 マーモット</a>
+            <a class="navbar-brand fw-bold" href="main">🛒 マーモット</a>
             
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -24,9 +24,10 @@
                     <%-- Javaのセッションを確認してボタンを切り替え --%>
                     <% if (session.getAttribute("loginUser") == null) { %>
                         
-                        <a href="cart.jsp" class="btn btn-outline-success">
+                        <button type="button" class="btn btn-outline-success" data-bs-toggle="offcanvas" data-bs-target="#sideCart">
                             🛒 カート
-                        </a>
+                        </button>
+                        
                         <button type="button" class="btn btn-outline-light" data-bs-toggle="modal" data-bs-target="#loginModal">
                             ログイン
                         </button>
@@ -41,9 +42,11 @@
                         <a href="mypage.jsp" class="btn btn-outline-info">
                             マイページ
                         </a>
-                        <a href="cart.jsp" class="btn btn-outline-success">
+                        
+                        <button type="button" class="btn btn-outline-success" data-bs-toggle="offcanvas" data-bs-target="#sideCart">
                             🛒 カート
-                        </a>
+                        </button>
+                        
                         <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#logoutConfirmModal">
                             ログアウト
                         </button>
@@ -55,3 +58,5 @@
             
         </div>
     </nav>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
