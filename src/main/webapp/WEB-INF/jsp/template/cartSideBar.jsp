@@ -68,7 +68,7 @@
         <div class="mt-auto pt-3 border-top bg-white">
             <h5 class="text-end fw-bold mb-3">合計: <span class="text-danger"><%= totalAmount %></span> 円</h5>
             <div class="d-grid gap-2">
-                <a href="checkout.jsp" class="btn btn-success btn-lg">購入手続きへ進む</a>
+                <a href="${pageContext.request.contextPath}/CheckoutServlet" class="btn btn-success btn-lg">購入手続きへ進む</a>
                 <a href="${pageContext.request.contextPath}/main" class="btn btn-outline-secondary">買い物を続ける（商品一覧へ）</a>
             </div>
         </div>
