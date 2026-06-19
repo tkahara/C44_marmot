@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpSession;
 
 import dao.OrderDAO;
 import model.Products;
+import model.User;
 
 @WebServlet("/OrderCompleteServlet")
 public class OrderCompleteServlet extends HttpServlet {
@@ -20,75 +21,67 @@ public class OrderCompleteServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         
+        request.setCharacterEncoding("UTF-8");
         HttpSession session = request.getSession();
         
-        // 1. セッションからカート情報(cartMap)を取得
+        // 1. カート情報の取得
         Map<Products, Integer> cartMap = (Map<Products, Integer>) session.getAttribute("cartMap");
-        
-        // カートが空の場合は、不正なアクセスとしてトップに戻す
         if (cartMap == null || cartMap.isEmpty()) {
             response.sendRedirect(request.getContextPath() + "/main");
             return;
         }
 
-        // 2. セッションからゲスト情報、およびログインユーザー情報を取得
-        Integer userId = null; 
-        // ※将来的にログイン機能と紐付ける場合はここに追記
+        // 2. 決済方法の取得
+        String paymentMethod = request.getParameter("payment");
+        if (paymentMethod == null || paymentMethod.isEmpty()) {
+            paymentMethod = (String) session.getAttribute("guestPayment");
+        }
 
-        String guestName = (String) session.getAttribute("guestName");
-        String guestPostalCode = (String) session.getAttribute("guestZip");
-        String guestAddress = (String) session.getAttribute("guestAddress");
-        String guestEmail = (String) session.getAttribute("guestEmail");
-        String guestPhone = (String) session.getAttribute("guestTel");
-        String paymentMethod = (String) session.getAttribute("guestPayment");
+        // 3. ユーザー情報の取得
+        User loginUser = (User) session.getAttribute("loginUser");
+        Integer userId = (loginUser != null) ? Integer.parseInt(loginUser.getUserId()) : null;
+        
+        String name = (loginUser != null) ? loginUser.getUserName() : (String) session.getAttribute("guestName");
+        String zip = (loginUser != null) ? loginUser.getPostalCode() : (String) session.getAttribute("guestZip");
+        String address = (loginUser != null) ? loginUser.getAddress() : (String) session.getAttribute("guestAddress");
+        String email = (loginUser != null) ? loginUser.getEmail() : (String) session.getAttribute("guestEmail");
+        String phone = (loginUser != null) ? loginUser.getPhoneNumber() : (String) session.getAttribute("guestTel");
 
-        // 🌟【追加】セッションからクレジットカード情報を取得
-        String guestCardNumber = (String) session.getAttribute("guestCardNumber");
-        String guestCardName = (String) session.getAttribute("guestCardName");
-        String guestCardExpiration = (String) session.getAttribute("guestCardExpiration");
+        String cardNumber = (String) session.getAttribute("guestCardNumber");
+        String cardName = (String) session.getAttribute("guestCardName");
+        String cardExpiration = (String) session.getAttribute("guestCardExpiration");
 
-        // 3. OrderDAO を使ってデータベース（MySQL）に注文情報を保存
+        // 4. DB保存処理
         OrderDAO orderDAO = new OrderDAO();
-        // 🌟【修正】新しく拡張した引数（3つのカード情報）をDAOに渡すように変更
         boolean isSuccess = orderDAO.insertOrders(
-            userId, paymentMethod, 
-            guestName, guestPostalCode, guestAddress, guestEmail, guestPhone, 
-            guestCardNumber, guestCardName, guestCardExpiration, 
-            cartMap
+            userId, paymentMethod, name, zip, address, email, phone, 
+            cardNumber, cardName, cardExpiration, cartMap
         );
 
         if (isSuccess) {
-            // 【変更】リダイレクト先（complete.jsp）でもデータを表示できるよう、一時的にセッションに保存します
-            session.setAttribute("confirmedCart", cartMap);
+            // 成功：注文完了フラグをセットして完了画面へ
+            session.setAttribute("isOrderCompleted", true);
+            
+            session.setAttribute("confirmedName", name);
+            session.setAttribute("confirmedAddress", address);
             session.setAttribute("confirmedPayment", paymentMethod);
-            session.setAttribute("confirmedName", guestName);
-            session.setAttribute("confirmedAddress", guestAddress);
             
-            // 🌟【追加】完了画面（complete.jsp）でマスク表示をするためにカード番号をセッションに退避
-            session.setAttribute("confirmedCardNumber", guestCardNumber);
-
-            // カートの中身をクリア
+            // カートとゲスト情報のクリア
             session.removeAttribute("cartMap");
-            
-            // 入力用ゲスト情報のクリア
             session.removeAttribute("guestName");
             session.removeAttribute("guestZip");
             session.removeAttribute("guestAddress");
             session.removeAttribute("guestEmail");
             session.removeAttribute("guestTel");
             session.removeAttribute("guestPayment");
-            
-            // 🌟【追加】用済みになったセッション内の生カード情報を確実にクリア（セキュリティ対策）
             session.removeAttribute("guestCardNumber");
             session.removeAttribute("guestCardName");
             session.removeAttribute("guestCardExpiration");
 
-            // 【最終解決策】フォワードをやめ、webapp直下に置くcomplete.jspへリダイレクト
             response.sendRedirect(request.getContextPath() + "/complete.jsp");
-            
         } else {
-            // 万が一、DB保存に失敗した場合
-            System.out.println("【エラー】注文情報のデータベース保存に失敗しました。");
+            // 失敗：セッションにエラーメッセージをセットしてメインへ
+            session.setAttribute("errorMessage", "注文処理中に問題が発生しました。再度お試しください。");
             response.sendRedirect(request.getContextPath() + "/main");
         }
     }

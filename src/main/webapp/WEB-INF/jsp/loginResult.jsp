@@ -1,9 +1,9 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" 
     pageEncoding="UTF-8" %>
-<%@ page import="model.Account" %>
+<%@ page import="model.User" %>
 <%
 // セッションスコープからユーザー情報を取得（Account型キャストに変更）
-Account loginUser = (Account) session.getAttribute("loginUser");
+User loginUser = (User) session.getAttribute("loginUser");
 %>
 <!DOCTYPE html>
 <html>

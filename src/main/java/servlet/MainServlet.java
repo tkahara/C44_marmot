@@ -8,6 +8,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import dao.ProductsDAO;
 import model.Products;
@@ -19,14 +20,30 @@ public class MainServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         
-        // 1. DAOを呼び出して、全商品のリストを取得
+        HttpSession session = request.getSession();
+
+        // 🌟 セッションからエラーメッセージ（または識別子）を取得
+        String error = (String) session.getAttribute("errorMessage");
+        
+        // メッセージが存在すればリクエストスコープに移し、セッションからは即座に削除（ワンタイム表示）
+        if (error != null) {
+            request.setAttribute("error", error);
+            session.removeAttribute("errorMessage");
+        }
+        
+        // 1. 商品リストを取得
         ProductsDAO dao = new ProductsDAO();
         List<Products> productsList = dao.findAll();
         
-        // 2. リクエストスコープに「productsList」という名前で保存
+        // 2. リクエストスコープに保存
         request.setAttribute("productsList", productsList);
         
-        // 3. WEB-INF/jsp/ 内にある main.jsp へ正しくフォワード（修正完了）
+        // 3. JSPへフォワード
         request.getRequestDispatcher("/WEB-INF/jsp/main.jsp").forward(request, response);
+    }
+
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        doGet(request, response);
     }
 }

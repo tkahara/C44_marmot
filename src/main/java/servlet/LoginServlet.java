@@ -10,73 +10,45 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
-import model.Account;
 import model.LoginLogic;
+import model.User;
 
 @WebServlet("/LoginServlet")
 public class LoginServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
-           
-    /**
-     * GETリクエスト時の処理（ログイン画面への遷移）
-     */
-    protected void doGet(HttpServletRequest request, 
-            HttpServletResponse response) 
+            
+    // GET: 直接このサーブレットが呼ばれた場合（通常はログイン画面へ）
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
-        // ログイン画面（JSP）へフォワード
-        RequestDispatcher dispatcher = request.getRequestDispatcher(
-                "WEB-INF/jsp/login.jsp");
+        RequestDispatcher dispatcher = request.getRequestDispatcher("WEB-INF/jsp/login.jsp");
         dispatcher.forward(request, response);
     }
 
-    /**
-     * POSTリクエスト時の処理（ログイン認証の実行）
-     */
-    protected void doPost(HttpServletRequest request, 
-            HttpServletResponse response) 
+    // POST: ログインフォームからの送信
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         
-        // リクエストパラメータのエンコーディングと取得
         request.setCharacterEncoding("UTF-8");
         String userId = request.getParameter("userId");
         String pass = request.getParameter("pass");
         
-        // コンソールへのデバッグ出力
-        System.out.println("--- ログイン試行 ---");
-        System.out.println("入力されたユーザーID: " + userId);
-        System.out.println("入力されたパスワード: " + pass);
-        
-        // 入力値をもとにLoginモデルを生成し、認証処理を実行
-        Login login = new Login(userId, pass);
+        model.Login login = new model.Login(userId, pass);
         LoginLogic bo = new LoginLogic();
+        User account = bo.execute(login);
         
-        // 真偽値ではなく、認証に成功したAccountオブジェクト（またはnull）を受け取る
-//      Account account = bo.authenticate(login);
-        Account account = bo.execute(login);
-        
-        System.out.println("認証結果（Account取得成否）: " + (account != null ? "成功" : "失敗"));
-        
-        // ログイン処理の成否により処理を分岐
-        if (account != null) { // ログイン成功時
-            
-            // 💡【修正の核心】型 Account に合わせて、setPass から setPassword に変更します
+        if (account != null) { 
+            // 🌟 成功時：セッションに保存してメイン画面へリダイレクト
             account.setPassword(pass); 
-            
-            // セッションスコープに "loginUser" という名前で、Accountオブジェクトを保存する
             HttpSession session = request.getSession();
-            session.setAttribute("loginUser", account); // loginUser という名前で account を格納
+            session.setAttribute("loginUser", account);
+            response.sendRedirect("main"); 
+        } else { 
+            // 失敗時
+            request.setAttribute("loginError", "IDまたはパスワードが正しくありません。");
             
-            // 💡【修正】コンソール確認用の名前取得メソッドも、getName() から getUserName() に変更
-            System.out.println("セッションに登録したユーザーID: " + account.getUserId());
-            System.out.println("セッションに登録した表示名: " + account.getUserName());
-            
-            // loginOK.jspへフォワード
-            RequestDispatcher dispatcher =
-                    request.getRequestDispatcher("WEB-INF/jsp/loginOK.jsp");
-            dispatcher.forward(request, response);       
-        } else { // ログイン失敗時
-            // ログイン画面へリダイレクトして再入力を促す
-            response.sendRedirect("LoginServlet");
+            // 💡 main ではなく、商品一覧を表示しているJSPへフォワードする
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/jsp/main.jsp");
+            dispatcher.forward(request, response);
         }
     }
 }

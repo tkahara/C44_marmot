@@ -1,10 +1,10 @@
 package model;
 
-import dao.AccountsDAO;
+import dao.UsersDAO;
 
 public class RegisterLogic {
-    public boolean execute(Account account) {
-        AccountsDAO dao = new AccountsDAO();
+    public boolean execute(User account) {
+        UsersDAO dao = new UsersDAO();
         
         // 1. 重複チェック
         if (dao.existsUserId(account.getUserId())) {

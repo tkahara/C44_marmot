@@ -1,94 +1,97 @@
-<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%-- JSTLを使用する場合（プロジェクトに導入済なら使用可能） --%>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<title>ユーザー登録</title>
+
 <style>
-    /* 画面を綺麗に整えるための簡単なスタイルシート */
-    table { border-collapse: collapse; width: 60%; margin: 20px 0; }
-    th, td { border: 1px solid #ccc; padding: 8px 12px; text-align: left; }
-    th { background-color: #f2f2f2; width: 35%; }
-    .required { color: red; margin-left: 5px; font-size: 12px; }
-    .optional { color: #666; margin-left: 5px; font-size: 12px; }
-    .btn-container { margin-top: 15px; display: flex; gap: 10px; }
+    :root {
+        --tea-modal-primary: #6F4E37;
+        --tea-modal-dark: #4A3325;
+        --tea-modal-accent: #C5A059;
+        --tea-modal-danger: #A94442;
+    }
+    .tea-modal .modal-content { border: 1px solid rgba(111, 78, 55, 0.15); border-radius: 14px; box-shadow: 0 10px 30px rgba(74, 51, 37, 0.1); background-color: #FFFFFF; color: var(--tea-modal-dark); }
+    .tea-modal .modal-header { border-bottom: 1px solid rgba(111, 78, 55, 0.1); background-color: rgba(111, 78, 55, 0.02); border-top-left-radius: 13px; border-top-right-radius: 13px; padding: 16px 20px; }
+    .tea-modal .modal-title { color: var(--tea-modal-dark); font-weight: bold; letter-spacing: 0.03em; }
+    .tea-modal .form-control { border: 1px solid rgba(111, 78, 55, 0.25); border-radius: 6px; padding: 10px 12px; }
+    .tea-modal .form-control:focus { border-color: var(--tea-modal-primary); box-shadow: 0 0 0 0.25rem rgba(111, 78, 55, 0.15); }
+    .btn-tea-modal-primary { background-color: var(--tea-modal-primary); border-color: var(--tea-modal-primary); color: #FFF; font-weight: bold; border-radius: 6px; transition: all 0.2s; }
+    .btn-tea-modal-primary:hover { background-color: var(--tea-modal-dark); color: #FFF; }
+    .btn-tea-modal-cancel { color: var(--tea-modal-primary); background-color: transparent; border: 1px solid rgba(111, 78, 55, 0.4); border-radius: 6px; }
+    .btn-tea-modal-danger { background-color: var(--tea-modal-danger); border-color: var(--tea-modal-danger); color: #FFF; font-weight: bold; border-radius: 6px; }
+    .tea-modal-link { color: var(--tea-modal-primary); text-decoration: none; font-weight: 500; }
+    .tea-modal-link:hover { color: var(--tea-modal-accent); text-decoration: underline; }
 </style>
-</head>
-<body>
 
-<h1>ユーザー新規登録</h1>
-
-<c:choose>
-    <%-- 💡 修正箇所：resume から test 属性に変更し、エラーを解消 --%>
-    <c:when test="${isSuccess}">
-        <p style="color: green; font-weight: bold;">新規登録が完了しました。</p>
-        <form action="LoginServlet" method="get">
-            <input type="submit" value="ログイン画面へ">
-        </form>
-    </c:when>
-    
-    <c:otherwise>
-        <%-- エラーメッセージがある場合に赤字で表示 --%>
-        <c:if test="${not empty msg}">
-            <p style="color: red; font-weight: bold;"><c:out value="${msg}" /></p>
-        </c:if>
-
-        <form action="RegisterServlet" method="post">
-            <table>
-                <tr>
-                    <th>ユーザーID<span class="required">(必須)</span></th>
-                    <td><input type="text" name="userId" required style="width: 80%;"></td>
-                </tr>
-                <tr>
-                    <th>パスワード<span class="required">(必須)</span></th>
-                    <td><input type="password" name="pass" required style="width: 80%;"></td>
-                </tr>
-                <tr>
-                    <th>氏名<span class="required">(必須)</span></th>
-                    <td><input type="text" name="name" required style="width: 80%;"></td>
-                </tr>
-                <tr>
-                    <th>郵便番号<span class="required">(必須)</span></th>
-                    <td><input type="text" name="postalCode" placeholder="123-4567" required style="width: 50%;"></td>
-                </tr>
-                <tr>
-                    <th>配送先住所<span class="required">(必須)</span></th>
-                    <td><input type="text" name="address" required style="width: 90%;"></td>
-                </tr>
-                <tr>
-                    <th>メールアドレス<span class="required">(必須)</span></th>
-                    <td><input type="email" name="mail" required style="width: 80%;"></td>
-                </tr>
-                <tr>
-                    <th>電話番号<span class="required">(必須)</span></th>
-                    <td><input type="tel" name="tel" required style="width: 60%;"></td>
-                </tr>
-                <tr>
-                    <th>クレジットカード番号<span class="optional">(任意)</span></th>
-                    <td><input type="text" name="cardNum" placeholder="16桁の半角数字" style="width: 80%;"></td>
-                </tr>
-                <tr>
-                    <th>クレジットカード名義<span class="optional">(任意)</span></th>
-                    <td><input type="text" name="cardName" placeholder="TAROU SUZUKI" style="width: 80%;"></td>
-                </tr>
-                <tr>
-                    <th>カード有効期限<span class="optional">(任意)</span></th>
-                    <td><input type="text" name="cardExpiration" placeholder="MM/YY" style="width: 40%;"></td>
-                </tr>
-            </table>
-            
-            <div class="btn-container">
-                <input type="submit" value="登録する" style="padding: 6px 20px; font-weight: bold;">
-        </form>
-        
-        <%-- キャンセル時はWelcomeServletまたはメイン画面へ戻る --%>
-        <form action="Main" method="get">
-        <input type="submit" value="キャンセル" style="padding: 6px 20px;">
-        </form>                
+<div class="modal fade tea-modal" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="loginModalLabel">🔑 ログイン</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-    </c:otherwise>
-</c:choose>
+            <form action="LoginServlet" method="post">
+                <div class="modal-body p-4">
+                    <%-- エラーメッセージ表示 --%>
+                    <% if (request.getAttribute("loginError") != null) { %>
+                        <div class="alert alert-danger mb-3 py-2"><small class="fw-bold">⚠️ <%= request.getAttribute("loginError") %></small></div>
+                    <% } %>
+                    
+                    <div class="mb-3">
+                        <label for="loginUserId" class="form-label fw-bold small">ユーザーID</label>
+                        <input type="text" class="form-control" id="loginUserId" name="userId" required placeholder="ユーザーID">
+                    </div>
+                    <div class="mb-3">
+                        <label for="loginPassword" class="form-label fw-bold small">パスワード</label>
+                        <input type="password" class="form-control" id="loginPassword" name="pass" required placeholder="••••••••">
+                    </div>
+                    <div class="text-end mt-2">
+                        <span class="small text-muted">初めてご利用の方：</span>
+                        <a href="#" class="small tea-modal-link" data-bs-target="#registerModal" data-bs-toggle="modal">新規会員登録はこちら</a>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-tea-modal-cancel" data-bs-dismiss="modal">キャンセル</button>
+                    <button type="submit" class="btn btn-tea-modal-primary px-4">ログインする</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
-</body>
-</html>
+<div class="modal fade tea-modal" id="registerModal" tabindex="-1" aria-hidden="true">...</div>
+
+<div class="modal fade tea-modal" id="logoutConfirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">確認</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center py-4 fw-bold">本当にログアウトしますか？</div>
+            <div class="modal-footer d-flex justify-content-center">
+                <button type="button" class="btn btn-tea-modal-cancel" data-bs-dismiss="modal">キャンセル</button>
+                <form action="LogoutServlet" method="post" class="m-0">
+                    <button type="submit" class="btn btn-tea-modal-danger">ログアウト</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // ログイン失敗時に自動でモーダルを表示する処理
+    <% if (request.getAttribute("loginError") != null) { %>
+        var loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+        loginModal.show();
+    <% } %>
+
+    // 郵便番号補完などのロジック（そのまま）
+    const regZipInput = document.getElementById("regPostalCode");
+    if (regZipInput) {
+        regZipInput.addEventListener("input", function() {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+    }
+});
+</script>

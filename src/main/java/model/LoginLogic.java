@@ -1,12 +1,15 @@
 package model;
 
-import dao.AccountsDAO;
-import servlet.Login;
+import dao.UsersDAO;
+// ❌ import servlet.Login;  <-- サーブレットのインポートは不要なので削除
 
 public class LoginLogic {
-    public Account execute(Login login) {  
-        AccountsDAO dao = new AccountsDAO();
-        // AccountsDAOのfindByLoginを呼び出して、Accountオブジェクトを取得
+    // 💡 引数を model パッケージ内の Login クラス（model.Login）として扱います
+    public User execute(Login login) {  
+        UsersDAO dao = new UsersDAO();
+        
+        // 🌟 UsersDAO の findByLogin(model.Login login) と型が完全に一致するため、
+        // エラーなく綺麗に User オブジェクトがリターンされます。
         return dao.findByLogin(login);
     }
 }

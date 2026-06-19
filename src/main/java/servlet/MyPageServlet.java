@@ -11,8 +11,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
-import dao.AccountsDAO;
-import model.Account;
+import dao.UsersDAO;
+import model.User;
 import model.Order;
 
 @WebServlet("/MyPageServlet") // 💡実際の遷移先URLマッピングに合わせてください
@@ -27,7 +27,7 @@ public class MyPageServlet extends HttpServlet {
         
         // 1. セッションスコープからログイン状態のユーザー情報を取得
         HttpSession session = request.getSession();
-        Account loginUser = (Account) session.getAttribute("loginUser");
+        User loginUser = (User) session.getAttribute("loginUser");
 
         // ログインしていない場合は、ログイン画面へ強制リダイレクト
         if (loginUser == null) {
@@ -36,7 +36,7 @@ public class MyPageServlet extends HttpServlet {
         }
 
         // 2. 💡【重要】DAOを使って、ログイン中ユーザーの購入履歴をDB（ORDERSテーブル）から取得
-        AccountsDAO dao = new AccountsDAO();
+        UsersDAO dao = new UsersDAO();
         List<Order> orderHistory = dao.getOrderHistory(loginUser.getUserId());
 
         // 3. 💡【重要】取得した購入履歴リストをリクエストスコープに保存（JSPへ引き渡すため）

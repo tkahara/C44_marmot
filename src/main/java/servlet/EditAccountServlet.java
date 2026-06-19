@@ -14,7 +14,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
-import model.Account;
+import model.User;
 
 @WebServlet("/EditAccountServlet")
 public class EditAccountServlet extends HttpServlet {
@@ -27,7 +27,7 @@ public class EditAccountServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String field = request.getParameter("field");
         HttpSession session = request.getSession();
-        Account loginUser = (Account) session.getAttribute("loginUser");
+        User loginUser = (User) session.getAttribute("loginUser");
 
         if (loginUser == null) {
             response.sendRedirect("LoginServlet");
@@ -101,7 +101,7 @@ public class EditAccountServlet extends HttpServlet {
         String newValue = request.getParameter("newValue");
 
         HttpSession session = request.getSession();
-        Account loginUser = (Account) session.getAttribute("loginUser");
+        User loginUser = (User) session.getAttribute("loginUser");
 
         if (loginUser == null) {
             response.sendRedirect("LoginServlet");
