@@ -2,11 +2,19 @@
 <%@ page import="java.util.Map" %>
 <%@ page import="model.Products" %>
 <%
-    // ★サーブレットからのリダイレクトに合わせて、session からデータを取得するように修正
-    Map<Products, Integer> cartMap = (Map<Products, Integer>) session.getAttribute("confirmedCart");
+    // 🌟【修正】サイドバーとの変数名衝突を防ぐため、completeCartMap に変更
+    Map<Products, Integer> completeCartMap = (Map<Products, Integer>) session.getAttribute("confirmedCart");
     String name = (String) session.getAttribute("confirmedName");
     String address = (String) session.getAttribute("confirmedAddress");
     String paymentCode = (String) session.getAttribute("confirmedPayment");
+    
+    // セッションからマスク用カード番号を取得して処理
+    String rawCardNumber = (String) session.getAttribute("confirmedCardNumber");
+    String displayCardNumber = "";
+    if ("credit".equals(paymentCode) && rawCardNumber != null && rawCardNumber.length() >= 4) {
+        String lastFour = rawCardNumber.substring(rawCardNumber.length() - 4);
+        displayCardNumber = "************" + lastFour;
+    }
     
     // 決済コードを日本語に変換
     String paymentMethod = "";
@@ -15,7 +23,8 @@
     else if ("convenience".equals(paymentCode)) paymentMethod = "コンビニ決済（前払い）";
     else if ("cod".equals(paymentCode)) paymentMethod = "代金引換";
 
-    int totalAmount = 0;
+    // 🌟【修正】サイドバーとの変数名衝突を防ぐため、completeTotalAmount に変更
+    int completeTotalAmount = 0;
 %>
 <!DOCTYPE html>
 <html>
@@ -25,6 +34,10 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="bg-light">
+
+<%@ include file="WEB-INF/jsp/template/header.jsp" %>
+<%@ include file="WEB-INF/jsp/template/dialogs.jsp" %>
+<%@ include file="WEB-INF/jsp/template/cartSideBar.jsp" %>
 
 <div class="container my-5" style="max-width: 700px;">
     <div class="card shadow-sm p-5 bg-white text-center mb-4">
@@ -45,12 +58,13 @@
                 </tr>
             </thead>
             <tbody>
-            <% if (cartMap != null) { 
-                for (Map.Entry<Products, Integer> entry : cartMap.entrySet()) { 
+            <%-- 🌟【修正】新しく定義した変数 completeCartMap をループに使用 --%>
+            <% if (completeCartMap != null) { 
+                for (Map.Entry<Products, Integer> entry : completeCartMap.entrySet()) { 
                     Products p = entry.getKey();
                     int qty = entry.getValue();
                     int subTotal = p.getPrice() * qty;
-                    totalAmount += subTotal;
+                    completeTotalAmount += subTotal;
             %>
                 <tr>
                     <td><span class="fw-bold"><%= p.getProductName() %></span></td>
@@ -60,7 +74,8 @@
             <% } } %>
                 <tr class="table-light">
                     <td colspan="2" class="text-end fw-bold text-danger">合計金額</td>
-                    <td class="text-end fw-bold text-danger fs-5"><%= totalAmount %> 円</td>
+                    <%-- 🌟【修正】表示する変数も completeTotalAmount に変更 --%>
+                    <td class="text-end fw-bold text-danger fs-5"><%= completeTotalAmount %> 円</td>
                 </tr>
             </tbody>
         </table>
@@ -69,6 +84,12 @@
             <p class="mb-1"><strong>お名前：</strong> <%= name %> 様</p>
             <p class="mb-1"><strong>お届け先：</strong> <%= address %></p>
             <p class="mb-0"><strong>お支払い方法：</strong> <%= paymentMethod %></p>
+            
+            <% if ("credit".equals(paymentCode) && !displayCardNumber.isEmpty()) { %>
+                <p class="mb-0 text-muted mt-1" style="font-size: 0.9rem;">
+                    （ご使用カード：<span class="font-monospace"><%= displayCardNumber %></span>）
+                </p>
+            <% } %>
         </div>
     </div>
 
@@ -78,4 +99,7 @@
 </div>
 
 </body>
+
+<%@ include file="WEB-INF/jsp/template/footer.jsp" %>
+
 </html>

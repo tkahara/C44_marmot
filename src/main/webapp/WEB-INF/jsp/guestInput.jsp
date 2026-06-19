@@ -32,7 +32,7 @@
             </div>
             
             <div class="mb-3">
-                <label for="zipCode" class="form-label fw-bold">郵便番号</label>
+                <label for="zipCode" class="form-label fw-bold">郵便番号<span class="badge bg-danger">必須</span></label>
                 <input type="text" class="form-control" id="zipCode" name="zipCode" placeholder="123-4567">
             </div>
             
