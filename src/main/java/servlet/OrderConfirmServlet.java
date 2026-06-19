@@ -16,43 +16,38 @@ public class OrderConfirmServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         
-        // リクエストの文字化け防止
         request.setCharacterEncoding("UTF-8");
-        
-        // guestInput.jsp から送られてきた入力値を取得
-        // 🌟【修正】JSPの name="guestName" に合わせて受け取り口を変更しました
-        String userName = request.getParameter("guestName");
-        String email = request.getParameter("email");
-        String zipCode = request.getParameter("zipCode");
-        String address = request.getParameter("address");
-        String tel = request.getParameter("tel");
-        String payment = request.getParameter("payment");
-        
-        // クレジットカード情報の取得
-        String guestCardName = request.getParameter("guestCardName");
-        String guestCardNumber = request.getParameter("guestCardNumber");
-        String guestCardExpiry = request.getParameter("guestCardExpiry");
-        
-        // 入力された情報を次の画面でも使えるようにセッションに保存
         HttpSession session = request.getSession();
-        session.setAttribute("guestName", userName); // ここは変更なしでOK
-        session.setAttribute("guestEmail", email);
-        session.setAttribute("guestZip", zipCode);
-        session.setAttribute("guestAddress", address);
-        session.setAttribute("guestPayment", payment);
-        session.setAttribute("guestTel", tel);
         
-        // クレジットカード情報をセッションに保存
-        session.setAttribute("guestCardName", guestCardName);
-        session.setAttribute("guestCardNumber", guestCardNumber);
-        session.setAttribute("guestCardExpiration", guestCardExpiry);
+        // 1. ログインユーザー情報を取得
+        model.User loginUser = (model.User) session.getAttribute("loginUser");
         
-        // 購入確認画面（checkoutConfirm.jsp）へフォワード
-        request.getRequestDispatcher("/WEB-INF/jsp/checkoutConfirm.jsp").forward(request, response);
-    }
+        String userName, email, zip, address, tel;
 
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) 
-            throws ServletException, IOException {
-        response.sendRedirect(request.getContextPath() + "/main");
+        if (loginUser != null) {
+            // 🌟 ログイン中の場合：Userクラスのメソッドを呼び出す
+            userName = loginUser.getUserName();
+            email = loginUser.getEmail();
+            zip = loginUser.getPostalCode();
+            address = loginUser.getAddress();
+            tel = loginUser.getPhoneNumber();
+        } else {
+            // ゲストの場合：フォームからの入力値を取得
+            userName = request.getParameter("guestName");
+            email = request.getParameter("email");
+            zip = request.getParameter("zipCode");
+            address = request.getParameter("address");
+            tel = request.getParameter("tel");
+        }
+
+        // 2. セッションへ保存（確認画面で使用）
+        session.setAttribute("orderName", userName);
+        session.setAttribute("orderEmail", email);
+        session.setAttribute("orderZip", zip);
+        session.setAttribute("orderAddress", address);
+        session.setAttribute("orderTel", tel);
+        
+        // 3. 次の画面へ
+        request.getRequestDispatcher("/WEB-INF/jsp/checkoutConfirm.jsp").forward(request, response);
     }
 }

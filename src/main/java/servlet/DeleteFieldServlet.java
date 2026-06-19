@@ -9,8 +9,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
-import dao.AccountsDAO; // 明示的にインポート
-import model.Account;
+import dao.UsersDAO; // 明示的にインポート
+import model.User;
 
 @WebServlet("/DeleteFieldServlet")
 public class DeleteFieldServlet extends HttpServlet {
@@ -19,7 +19,7 @@ public class DeleteFieldServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
         HttpSession session = request.getSession();
-        Account loginUser = (Account) session.getAttribute("loginUser");
+        User loginUser = (User) session.getAttribute("loginUser");
 
         if (loginUser == null) {
             response.sendRedirect("Main");
@@ -27,7 +27,7 @@ public class DeleteFieldServlet extends HttpServlet {
         }
 
         try {
-            AccountsDAO databaseAccessObject = new AccountsDAO();
+            UsersDAO databaseAccessObject = new UsersDAO();
             
             // クレジットカード削除の専用メソッドを呼び出す（内部で番号・名義・期限をNULLにします）
             boolean result = databaseAccessObject.deleteCardNum(loginUser.getUserId());

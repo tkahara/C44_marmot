@@ -1,6 +1,6 @@
 package model;
 
-public class Account {
+public class User {
     private String userId;         // user_id
     private String userName;       // user_name (旧: name)
     private String password;       // password  (旧: pass)
@@ -13,7 +13,7 @@ public class Account {
     private String cardExpiration; // card_expiration (新規)
 
     // フルコンストラクタ
-    public Account(String userId, String userName, String password, String postalCode, String address, 
+    public User(String userId, String userName, String password, String postalCode, String address, 
                    String email, String phoneNumber, String cardNumber, String cardName, String cardExpiration) {
         this.userId = userId;
         this.userName = userName;
