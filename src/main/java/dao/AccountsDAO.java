@@ -16,6 +16,7 @@ public class AccountsDAO {
     private final String JDBC_URL = "jdbc:mysql://localhost/keg_db?useSSL=false&allowPublicKeyRetrieval=true";
     private final String DB_USER = "keg_user";
     private final String DB_PASS = "keg_pass";
+    //
     
     // 1. ログイン処理（安全な標準接続に変更）
     public Account findByLogin(Login login) {
