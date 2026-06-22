@@ -38,13 +38,14 @@
 						data-bs-toggle="modal" data-bs-target="#loginModal">ログイン
 					</button>
 					<a href="RegisterServlet" class="btn btn-warning"> 新規登録 </a>
-
+					
+					
 					<%
 					} else {
 					%>
 
-					<span class="navbar-text text-white me-2">ようこそ、会員 様</span> <a
-						href="mypage.jsp" class="btn btn-outline-info"> マイページ </a>
+					<span class="navbar-text text-white me-2">ようこそ、会員 様</span> 
+					<a href="MyPageServlet" class="btn btn-outline-info"> マイページ </a>
 
 					<button type="button" class="btn btn-outline-success"
 						data-bs-toggle="offcanvas" data-bs-target="#sideCart">🛒
