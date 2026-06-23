@@ -52,6 +52,6 @@ public class DeleteFieldServlet extends HttpServlet {
         }
 
         // マイページ画面（メイン）へ戻る
-        response.sendRedirect("Main");
+        response.sendRedirect("MyPageServlet");
     }
 }

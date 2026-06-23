@@ -142,18 +142,41 @@ public class UsersDAO {
     }
 
     // 5. 退会（アカウント完全削除）
+ // 5. 退会（アカウント完全削除：購入履歴も一緒にクリア）
     public boolean deleteAccount(String userId) {
         try { Class.forName("com.mysql.cj.jdbc.Driver"); } catch (ClassNotFoundException e) { throw new IllegalStateException(e); }
 
-        String sql = "DELETE FROM USERS WHERE user_id = ?";
+        // 🌟 順番が超重要：先に子供（ORDERS）を消してから、親（USERS）を消します
+        String deleteOrdersSql = "DELETE FROM ORDERS WHERE user_id = ?";
+        String deleteUserSql = "DELETE FROM USERS WHERE user_id = ?";
 
-        try (Connection conn = DriverManager.getConnection(JDBC_URL, DB_USER, DB_PASS);
-             PreparedStatement pStmt = conn.prepareStatement(sql)) {
-             
-             pStmt.setString(1, userId); 
-             int result = pStmt.executeUpdate();
-             return result == 1;
-             
+        try (Connection conn = DriverManager.getConnection(JDBC_URL, DB_USER, DB_PASS)) {
+            // オートコミットをオフにして、両方成功したときだけ反映（トランザクション）
+            conn.setAutoCommit(false);
+
+            try (PreparedStatement pStmtOrder = conn.prepareStatement(deleteOrdersSql);
+                 PreparedStatement pStmtUser = conn.prepareStatement(deleteUserSql)) {
+                
+                // 1. まず購入履歴を削除
+                pStmtOrder.setString(1, userId);
+                pStmtOrder.executeUpdate(); // 履歴は0件の場合もあるので、戻り値はチェックしなくてOK
+
+                // 2. 次にユーザーアカウントを削除
+                pStmtUser.setString(1, userId);
+                int userResult = pStmtUser.executeUpdate();
+
+                if (userResult == 1) {
+                    conn.commit(); // 両方うまく行ったら確定
+                    return true;
+                } else {
+                    conn.rollback(); // ユーザー削除に失敗したら巻き戻す
+                    return false;
+                }
+            } catch (SQLException e) {
+                conn.rollback(); // エラーが起きたら巻き戻す
+                e.printStackTrace();
+                return false;
+            }
         } catch (SQLException e) {
             e.printStackTrace();
             return false;

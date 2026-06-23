@@ -41,7 +41,7 @@
         <div class="alert alert-dismissible fade show mb-4 <%= alertClass %>" role="alert">
             <strong>
                 <% if ("invalid_access".equals(error)) { %>
-                    ご注意: 注文完了画面へは直接アクセスできません。注文操作を最初からやり直してください。
+                    ご注意: 注文完了画面へは直接アクセスできません。注文操作を最初からやり連してください。
 
                 <% } else if ("order_failed".equals(error)) { %>
                     エラー: 注文処理中に問題が発生しました。再度お試しください。
@@ -93,5 +93,52 @@
         <% } %>
     </div>
 </main>
+
+<%-- 🌟 ここから追加：退会完了通知用モーダル（ダイアログ） --%>
+<div class="modal fade" id="withdrawnCompleteModal" tabindex="-1" aria-labelledby="withdrawnModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 14px; border: 1px solid rgba(111, 78, 55, 0.15); background-color: #FFFFFF;">
+            
+            <div class="modal-header" style="background-color: rgba(111, 78, 55, 0.03); border-bottom: 1px solid rgba(111, 78, 55, 0.1);">
+                <h5 class="modal-title fw-bold" id="withdrawnModalLabel" style="color: #6f4e37;">手続き完了</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+            <div class="modal-body py-4 text-center">
+                <div class="mb-3" style="font-size: 2.5rem;">✨</div>
+                <h6 class="fw-bold mb-2" style="color: #333333;">退会手続きが完了いたしました</h6>
+                <p class="text-muted small mb-0">
+                    当サロンをご利用いただき、誠にありがとうございました。<br>
+                    またのご来店をスタッフ一同、心よりお待ち申し上げております。
+                </p>
+            </div>
+            
+            <div class="modal-footer justify-content-center" style="border-top: 1px solid rgba(111, 78, 55, 0.1); background-color: rgba(111, 78, 55, 0.01);">
+                <button type="button" class="btn btn-tea-outline px-5" data-bs-dismiss="modal" style="background-color: #6f4e37; color: white; border: none; border-radius: 6px; padding: 8px 24px;">確認</button>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+<%-- 🌟 パラメータ自動検知＆モーダル起動スクリプト --%>
+<script type="text/javascript">
+    window.addEventListener('DOMContentLoaded', function() {
+        // 1. URLの後ろについているパラメータ（?withdrawn=true）を取得
+        const urlParams = new URLSearchParams(window.location.search);
+        
+        // 2. 「withdrawn」が「true」だった場合、自動でモーダルを起動する
+        if (urlParams.get('withdrawn') === 'true') {
+            const myModal = new bootstrap.Modal(document.getElementById('withdrawnCompleteModal'));
+            myModal.show();
+            
+            // 🌟 お見事ポイント
+            // モーダル表示後、URLから「?withdrawn=true」という見た目の悪い文字を自動で消去します。
+            // これにより、ユーザーがページをF5キーなどで手動リロードした時にダイアログが何度も出なくなります。
+            history.replaceState(null, '', window.location.pathname);
+        }
+    });
+</script>
+<%-- 🌟 ここまで追加 --%>
 
 <%@ include file="template/footer.jsp" %>

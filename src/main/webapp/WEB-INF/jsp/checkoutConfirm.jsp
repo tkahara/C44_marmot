@@ -3,14 +3,18 @@
 <%@ page import="model.Products" %>
 <%@ page import="model.User" %>
 <%
+    // 1. カート情報の取得
     Map<Products, Integer> confirmCartMap = (Map<Products, Integer>) session.getAttribute("cartMap");
-    User loginUser = (User) session.getAttribute("loginUser");
 
-    String name = (loginUser != null) ? loginUser.getUserName() : (String) session.getAttribute("guestName");
-    String email = (loginUser != null) ? loginUser.getEmail() : (String) session.getAttribute("guestEmail");
-    String zip = (loginUser != null) ? loginUser.getPostalCode() : (String) session.getAttribute("guestZip");
-    String address = (loginUser != null) ? loginUser.getAddress() : (String) session.getAttribute("guestAddress");
-    String tel = (loginUser != null) ? loginUser.getPhoneNumber() : (String) session.getAttribute("guestTel");
+    // =========================================================
+    // 🌟【修正】OrderConfirmServletが一本化してくれた共通キーから直接受け取る
+    // これにより、ログイン・ゲストに関わらず必ず正しいデータがここに入ります！
+    // =========================================================
+    String name = (String) session.getAttribute("orderName");
+    String email = (String) session.getAttribute("orderEmail");
+    String zip = (String) session.getAttribute("orderZip");
+    String address = (String) session.getAttribute("orderAddress");
+    String tel = (String) session.getAttribute("orderTel");
     
     // 現在選択されている決済方法（セッションにあればそれを利用）
     String currentPayment = (String) session.getAttribute("guestPayment");
@@ -39,7 +43,7 @@
         <table class="table table-borderless m-0">
             <tr><th style="width: 20%;">お名前</th><td><%= name %> 様</td></tr>
             <tr><th>メール</th><td><%= email %></td></tr>
-            <tr><th>郵便番号</th><td><%= (zip != null) ? zip : "なし" %></td></tr>
+            <tr><th>郵便番号</th><td><%= (zip != null && !zip.isEmpty()) ? "〒" + zip : "なし" %></td></tr>
             <tr><th>ご住所</th><td><%= address %></td></tr>
             <tr><th>電話番号</th><td><%= tel %></td></tr>
         </table>

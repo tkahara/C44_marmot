@@ -22,10 +22,16 @@ public class MainServlet extends HttpServlet {
         
         HttpSession session = request.getSession();
 
-        // 🌟 セッションからエラーメッセージ（または識別子）を取得
+        // =========================================================
+        // 🌟【ここを追加！】メイン画面に来たら「注文済みフラグ」をリセットし、
+        // 次の新しい買い物ができるようにする
+        // =========================================================
+        session.removeAttribute("alreadyOrdered");
+
+        // セッションからエラーメッセージ（または識別子）を取得
         String error = (String) session.getAttribute("errorMessage");
         
-        // メッセージが存在すればリクエストスコープに移し、セッションからは即座に削除（ワンタイム表示）
+        // メッセージが存在すればリクエストスコープに移し、セッションからは即座に削除
         if (error != null) {
             request.setAttribute("error", error);
             session.removeAttribute("errorMessage");

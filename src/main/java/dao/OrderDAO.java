@@ -17,16 +17,16 @@ public class OrderDAO {
     /**
      * 注文情報をDB（ordersテーブル）に一括保存するメソッド（クレジットカード情報対応版）
      */
-    public boolean insertOrders(Integer userId, String paymentMethod, 
+    // 🌟【修正】第1引数の userId を Integer から String に変更しました
+    public boolean insertOrders(String userId, String paymentMethod, 
                                 String guestName, String guestPostalCode, String guestAddress, 
                                 String guestEmail, String guestPhone, 
-                                String guestCardNumber, String guestCardName, String guestCardExpiration, // 🌟【追加】引数を3つ追加
+                                String guestCardNumber, String guestCardName, String guestCardExpiration, 
                                 Map<Products, Integer> cartMap) {
         
         Connection con = null;
         PreparedStatement ps = null;
         
-        // 🌟【追加】SQLに3つのカード情報カラムを追加し、VALUESの「?」を14個に増やしました
         String sql = "INSERT INTO orders (user_id, product_name, quantity, unit_price, total_price, "
                    + "payment_method, guest_name, guest_postal_code, guest_address, guest_email, guest_phone, "
                    + "guest_card_number, guest_card_name, guest_card_expiration) "
@@ -48,11 +48,13 @@ public class OrderDAO {
                 int unitPrice = product.getPrice();
                 int totalPrice = unitPrice * qty;
                 
-                // 1. user_id
-                if (userId != null) {
-                    ps.setInt(1, userId);
+                // ==========================================
+                // 🌟【修正】1. user_id を String 型としてセットするように変更
+                // ==========================================
+                if (userId != null && !userId.isEmpty()) {
+                    ps.setString(1, userId); // setInt -> setString に変更
                 } else {
-                    ps.setNull(1, java.sql.Types.INTEGER);
+                    ps.setNull(1, java.sql.Types.VARCHAR); // Types.INTEGER -> Types.VARCHAR に変更
                 }
                 
                 // 2. 注文商品データ
@@ -69,8 +71,7 @@ public class OrderDAO {
                 ps.setString(10, guestEmail);
                 ps.setString(11, guestPhone);
                 
-                // 🌟【追加】4. クレジットカード情報（12, 13, 14番目の?にセット）
-                // 決済方法が「credit」の時のみ値を保存し、それ以外はDBにNULLを保存する安全設計
+                // 4. クレジットカード情報（12, 13, 14番目の?にセット）
                 if ("credit".equals(paymentMethod)) {
                     ps.setString(12, guestCardNumber);
                     ps.setString(13, guestCardName);

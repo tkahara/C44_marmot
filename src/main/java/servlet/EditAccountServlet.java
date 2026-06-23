@@ -37,7 +37,6 @@ public class EditAccountServlet extends HttpServlet {
         String fieldLabel = "";
         String currentValue = "";
 
-        // もしリクエストが古い大文字で来ても処理できるように小文字に統一
         if (field != null) {
             field = field.toLowerCase();
             if (field.equals("pass")) field = "password";
@@ -47,7 +46,6 @@ public class EditAccountServlet extends HttpServlet {
             if (field.equals("card_num")) field = "card_number";
         }
 
-        // Accountの新しいゲッター名およびカラム名にマッピング
         switch (field) {
             case "password":
                 fieldLabel = "パスワード";
@@ -108,7 +106,6 @@ public class EditAccountServlet extends HttpServlet {
             return;
         }
 
-        // 💡【重要】古い大文字のパラメータがJSPから送信されてきた場合の自動変換対策
         if (field != null) {
             field = field.toLowerCase();
             if (field.equals("pass")) field = "password";
@@ -118,7 +115,6 @@ public class EditAccountServlet extends HttpServlet {
             if (field.equals("card_num")) field = "card_number";
         }
 
-        // 新規DBカラム名に完全に適合させる
         String sql = "UPDATE USERS SET " + field + " = ? WHERE user_id = ?";
 
         try { Class.forName("com.mysql.cj.jdbc.Driver"); } catch (ClassNotFoundException e) { throw new IllegalStateException(e); }
@@ -126,7 +122,6 @@ public class EditAccountServlet extends HttpServlet {
         try (Connection conn = DriverManager.getConnection(JDBC_URL, DB_USER, DB_PASS);
              PreparedStatement pStmt = conn.prepareStatement(sql)) {
 
-            // 空白のクレジットカード周りはNULLをセットできるように制御
             if (newValue == null || newValue.isEmpty()) {
                 if (field.equals("card_number") || field.equals("card_name") || field.equals("card_expiration")) {
                     pStmt.setNull(1, java.sql.Types.VARCHAR);
@@ -141,7 +136,6 @@ public class EditAccountServlet extends HttpServlet {
             int result = pStmt.executeUpdate();
 
             if (result == 1) {
-                // セッション内のオブジェクト情報も新しいセッター名で同期
                 switch (field) {
                     case "password":
                         loginUser.setPassword(newValue);
@@ -173,10 +167,14 @@ public class EditAccountServlet extends HttpServlet {
                 }
                 session.setAttribute("loginUser", loginUser);
             }
+         // ⭕ 修正後（エラーが起きたらTomcatのエラー画面を表示して原因を教えてくれる）
         } catch (SQLException e) {
             e.printStackTrace();
+            // 🌟発生したSQLエラーをそのままスローして画面に表示させる
+            throw new ServletException("データベースの更新に失敗しました。カラム名やデータ型、入力値を確認してください。", e);
         }
 
-        response.sendRedirect("AccountInfoServlet");
+        // 🌟正常に更新できたときだけリダイレクトする
+        response.sendRedirect(request.getContextPath() + "/MyPageServlet");
     }
 }
