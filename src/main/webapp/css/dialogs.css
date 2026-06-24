@@ -6,18 +6,26 @@
 .modal-content {
     background-color: #fcf8f2; /* 画像の背景に合わせた柔らかなクリーム色 */
     border: 1px solid #c59b6d; /* ロゴのゴールドをイメージした上品な外枠 */
-    border-radius: 8px; /* 緩やかで落ち着いた角丸 */
+    
+    /* 🌟 修正：角の丸みを 8px から 16px に変更（優しくモダンなカフェテイストに） */
+    border-radius: 16px; 
+    
     box-shadow: 0 10px 30px rgba(74, 59, 50, 0.15); /* 深みのあるブラウン系の影 */
     color: #4a3b32; /* お茶を連想させる深みのあるダークブラウンの文字色 */
 
-    /* 【追加】表示・遷移時のボケや歪みを防ぐハードウェアアクセラレーション */
+    /* はみ出た四角いカドを完全にマスクして切り取る */
+    overflow: hidden;
+    /* ブラウザの描画バグによるエッジの「白にじみ」をブロックするお守り */
+    background-clip: padding-box;
+
+    /* 表示・遷移時のボケや歪みを防ぐハードウェアアクセラレーション */
     transform: translateZ(0);
     will-change: transform;
     backface-visibility: hidden;
     -webkit-font-smoothing: subpixel-antialiased;
 }
 
-/* 【追加】Bootstrapのフェードアニメーション時の微小な歪みを完全に固定 */
+/* Bootstrapのフェードアニメーション時の微小な歪みを完全に固定 */
 .modal.fade .modal-dialog {
     transform: translate3d(0, -50px, 0);
     will-change: transform;
@@ -30,10 +38,8 @@
 .modal-header {
     background-color: #e3c49a; /* 画像上部ヘッダーと共通の気品あるベージュ */
     border-bottom: 1px solid #c59b6d;
-    border-top-left-radius: 7px;
-    border-top-right-radius: 7px;
     padding: 16px 24px;
-    align-items: center; /* 【追加】縦方向の中央揃えを確実にする */
+    align-items: center; /* 縦方向の中央揃えを確実にする */
 }
 
 /* ヘッダーのタイトル文字 */
@@ -53,7 +59,7 @@
     opacity: 0.7;
     transition: all 0.2s ease;
     
-    /* 【追加】Bootstrap標準の「×」アイコンの歪みを防ぎ、綺麗な正円を保つ設定 */
+    /* Bootstrap標準の「×」アイコンの歪みを防ぎ、綺麗な正円を保つ設定 */
     box-sizing: border-box;
     width: 32px;
     height: 32px;
@@ -106,9 +112,7 @@
     border-top: 1px solid #eadecc;
     padding: 16px 24px;
     background-color: #f9f3ea; /* フッターのみわずかにトーンを落としたクリーム色 */
-    border-bottom-left-radius: 7px;
-    border-bottom-right-radius: 7px;
-    justify-content: flex-end; /* 【追加】ボタンを右寄せに固定 */
+    justify-content: flex-end; /* ボタンを右寄せに固定 */
 }
 
 /* ==========================================================================

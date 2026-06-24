@@ -108,14 +108,15 @@ body {
 }
 
 /* === カートボタン（★ヘッダーのルイボス・テラコッタ色、極太文字に同期） === */
-button[type="button"], 
-.cart-form button,
-main.container .btn-danger, 
-main.container button[type="submit"],
-main.container .btn-primary {
-	grid-column: 2;
-	grid-row: 4;
-	flex: 1;
+/* 106行目以降を以下のように書き換える */
+.product-card button[type="button"], 
+.product-card .cart-form button,
+.product-card .btn-danger, 
+.product-card button[type="submit"],
+.product-card .btn-primary {
+    /* ここに共通のスタイル設定を記述 */
+    grid-column: 2;
+    grid-row: 4;
 	padding: 14px;
 	background-color: #C05C46 !important; /* ★ヘッダーと同じ紅茶色（ルイボス・テラコッタ） */
 	border: none !important;              /* 枠線なしでスッキリ */
@@ -130,11 +131,12 @@ main.container .btn-primary {
 }
 
 /* カートボタン：ホバー時（★少し明るいアプリコットティー色） */
-button:hover,
-.cart-form button:hover,
-main.container .btn-danger:hover,
-main.container button[type="submit"]:hover,
-main.container .btn-primary:hover {
-	background-color: #D47A55 !important; /* ★ホバー時は少し明るい色に変更 */
-	opacity: 0.9 !important;              /* ほんのり透明にしてクリック感を演出 */
+/* 修正後：.product-card 内のボタンだけを対象にする */
+.product-card button:hover,
+.product-card .cart-form button:hover,
+.product-card .btn-danger:hover,
+.product-card button[type="submit"]:hover,
+.product-card .btn-primary:hover {
+    background-color: #D47A55 !important;
+    opacity: 0.9 !important;
 }

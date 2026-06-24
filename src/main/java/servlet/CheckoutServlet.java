@@ -11,7 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 import model.Products;
-import model.User; // 🌟Userモデルをインポート
+import model.User; // Userモデルをインポート
 
 @WebServlet("/CheckoutServlet")
 public class CheckoutServlet extends HttpServlet {
@@ -23,15 +23,15 @@ public class CheckoutServlet extends HttpServlet {
         HttpSession session = request.getSession();
         
         // 1. カートが空かどうかのチェック
+        @SuppressWarnings("unchecked")
         Map<Products, Integer> cartMap = (Map<Products, Integer>) session.getAttribute("cartMap");
         if (cartMap == null || cartMap.isEmpty()) {
-            // カートが空ならメイン画面（商品一覧）にリダイレクト
-            response.sendRedirect(request.getContextPath() + "/MainServlet");
+            // 🌟 修正：リダイレクト先を他の画面と合わせて "/main" に統一します
+            response.sendRedirect(request.getContextPath() + "/main");
             return;
         }
 
         // 2. ログイン状態のチェック
-        // 🌟【修正】User型にキャストして取得することで、メソッドを使えるようにします
         User loginUser = (User) session.getAttribute("loginUser");
 
         if (loginUser == null) {
@@ -39,12 +39,15 @@ public class CheckoutServlet extends HttpServlet {
             request.getRequestDispatcher("/WEB-INF/jsp/guestInput.jsp").forward(request, response);
         } else {
             // =========================================================
-            // 🌟【追加】すでにログインしている場合
-            // 確認画面(checkoutConfirm.jsp)が表示で使用する「共通の箱」に
+            // すでにログインしている場合
+            // 確認画面(checkoutConfirm.jsp)で表示・使用する「共通の箱」に
             // usersテーブルから取得してある会員情報をしっかりと詰め込む！
             // =========================================================
             session.setAttribute("orderName", loginUser.getUserName());
             session.setAttribute("orderEmail", loginUser.getEmail());
+            
+            // ⚠️ ゲッターメソッド名（getPostalCode, getPhoneNumber）が 
+            // Userクラスの定義（getZipCode, getTel など）と一致しているかだけご確認ください
             session.setAttribute("orderZip", loginUser.getPostalCode());
             session.setAttribute("orderAddress", loginUser.getAddress());
             session.setAttribute("orderTel", loginUser.getPhoneNumber());

@@ -1,93 +1,89 @@
 /* ==========================================
-   カートサイドバー専用（優先度超強化版）
+   カートサイドバー専用（優先度超強化版・最終版）
    ========================================== */
 
-/* カートサイドバー全体の背景と明朝体フォント */
+/* カートサイドバー全体の背景・フォント・サイズ */
 div#sideCart.offcanvas {
 	background-color: #FFFDF9 !important;
 	font-family: "游明朝", YuMincho, "ヒラギノ明朝 ProN", serif !important;
 	color: #2C1D11 !important;
+	
+	/* 確実に500pxを維持 */
+	width: 500px !important;
+	max-width: 90vw !important;
 }
 
-/* ヘッダー部分の背景をミルクティーベージュに強制上書き */
+/* ヘッダー部分 */
 div#sideCart .offcanvas-header.bg-light,
 div#sideCart .offcanvas-header {
 	background-color: #F5E6D3 !important;
 	border-bottom: 1px solid #EADDCA !important;
 }
 
+/* ❌ 閉じるボタンの統一デザイン（崩れ防止のため明示） */
+div#sideCart .btn-close {
+	background-color: rgba(255, 255, 255, 0.4) !important;
+	border-radius: 50% !important;
+	opacity: 0.7 !important;
+	width: 32px !important;
+	height: 32px !important;
+}
+div#sideCart .btn-close:hover {
+	background-color: rgba(255, 255, 255, 0.8) !important;
+	opacity: 1 !important;
+}
+
 div#sideCart h5#sideCartLabel {
 	color: #4A3B32 !important;
 }
 
-/* 商品名と単価のテキスト色 */
+/* 商品情報 */
 div#sideCart h6 {
 	color: #4A3B32 !important;
 }
-
 div#sideCart .text-muted {
 	color: #8B7355 !important;
 }
-
-/* 金額の数字（琥珀・紅茶ゴールド） */
 div#sideCart .text-danger,
 div#sideCart span.text-danger {
 	color: #C48A43 !important;
 	font-family: "Helvetica Neue", Arial, sans-serif !important;
 }
 
-/* 数量選択のセレクトボックス */
+/* 数量選択 */
 div#sideCart select.form-select {
 	border: 1px solid #EADDCA !important;
 	background-color: #FFFFFF !important;
 	color: #2C1D11 !important;
 }
 
-/* 下部固定エリアの背景を白からクリーム色に上書き */
+/* 下部エリア */
 div#sideCart .mt-auto.bg-white,
 div#sideCart .mt-auto {
 	background-color: #FFFDF9 !important;
 	border-top: 1px solid #EADDCA !important;
 }
 
-/* 🟢 「購入手続きへ進む」ボタンをfirebrickへ強制変更 */
+/* 🟢 「購入手続きへ進む」ボタン */
 div#sideCart .btn-success.btn-lg,
 div#sideCart .btn-success {
-	background-color: #B22222 !important;
+	background-color: #B22222 !important; /* Firebrick */
 	border-color: #D2B48C !important;
 	color: #FFFFFF !important;
-	font-family: "Yu Gothic", "游ゴシック", sans-serif !important;
 	font-weight: bold !important;
 }
-
 div#sideCart .btn-success:hover {
 	background-color: #D63737 !important;
-	border-color: #D63737 !important;
 }
 
-/* ⚪ 「買い物を続ける」ボタン */
+/* ⚪ 買い物を続けるボタン */
 div#sideCart .btn-outline-secondary {
 	color: #8B7355 !important;
 	border-color: #EADDCA !important;
-	background-color: transparent !important;
-	font-family: "Yu Gothic", "游ゴシック", sans-serif !important;
 }
 
-div#sideCart .btn-outline-secondary:hover {
-	background-color: #EADDCA !important;
-	color: #4A3B32 !important;
-}
-
-/* ❌ 「キャンセル」ボタン */
+/* ❌ キャンセルボタン */
 div#sideCart .btn-outline-danger {
 	color: #A88766 !important;
 	border-color: #EADDCA !important;
-	background-color: transparent !important;
-	font-family: "Yu Gothic", "游ゴシック", sans-serif !important;
-}
-
-div#sideCart .btn-outline-danger:hover {
-	background-color: #F5E6D3 !important;
-	border-color: #D2B48C !important;
-	color: #8B7355 !important;
 }

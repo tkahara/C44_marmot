@@ -291,7 +291,7 @@ body.tea-theme {
 				<div class="d-grid gap-2">
 					<button type="submit" class="btn btn-tea-submit btn-lg">✨
 						同意して会員登録する</button>
-					<a href="main" class="btn btn-tea-outline">戻る</a>
+					<a href="javascript:history.back();" class="btn btn-tea-outline">前の画面に戻る</a>
 				</div>
 
 			</form>

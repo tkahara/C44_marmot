@@ -127,7 +127,8 @@
             <p class="text-muted small mt-2">ログインせずにゲストとして購入手続きを進めます。</p>
         </div>
         
-        <form action="OrderConfirmServlet" method="POST" class="h-adr">
+        <%-- 🌟 修正：formに id="guestOrderForm" を追加して他と区別できるようにしました --%>
+        <form action="OrderConfirmServlet" method="POST" class="h-adr" id="guestOrderForm">
             <span class="p-country-name" style="display:none;">Japan</span>
             
             <div class="mb-3">
@@ -199,7 +200,7 @@
             
             <div class="d-grid gap-2">
                 <button type="submit" class="btn btn-tea-submit btn-lg">購入確認画面へ進む ➔</button>
-                <a href="productDetail" class="btn btn-tea-outline">カートに戻る</a>
+                <a href="javascript:history.back();" class="btn btn-tea-outline">商品詳細に戻る</a>
             </div>
             
         </form>
@@ -231,7 +232,9 @@ document.addEventListener("DOMContentLoaded", function() {
     const emailError = document.getElementById("emailError");
     const emailConfirmError = document.getElementById("emailConfirmError");
     const zipInput = document.getElementById("zipCode"); // 郵便番号欄
-    const form = document.querySelector("form");
+    
+    // 🌟 修正：querySelector("form") から getElementById("guestOrderForm") に変更
+    const form = document.getElementById("guestOrderForm");
 
     // ⚡ 郵便番号のハイフン・記号をリアルタイムで自動消去するスクリプト
     zipInput.addEventListener("input", function() {
