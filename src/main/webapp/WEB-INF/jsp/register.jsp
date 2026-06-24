@@ -162,7 +162,7 @@ body.tea-theme {
 				<div class="mb-2"
 					style="font-size: 2.2rem; color: var(--tea-primary);">✨</div>
 				<h3 class="fw-bold tea-title">新規会員登録</h3>
-				<p class="text-muted small mt-2">当サロンの会員サービスをご利用いただくため、必要事項のご入力をお願いいたします。</p>
+				<p class="text-muted small mt-2">当サイトの会員サービスをご利用いただくため、必要事項のご入力をお願いいたします。</p>
 			</div>
 
 			<%-- ❌ 登録エラーメッセージ表示（DB重複時など） --%>
@@ -188,9 +188,10 @@ body.tea-theme {
 				<div class="mb-3">
 					<label for="userId" class="form-label fw-bold">ユーザーID <span
 						class="badge badge-tea-req">必須</span></label> <input type="text"
-						class="form-control" id="userId" name="userId"
-						value="<%=userId%>" placeholder="例: salon_tea_lover" required
-						autocomplete="off">
+						class="form-control" id="userId" name="userId" value="<%=userId%>"
+						placeholder="例: tea_lover" required
+						pattern="^[a-zA-Z][a-zA-Z0-9_]{3,19}$"
+						title="ユーザーIDは半角英数字およびアンダースコア(_)のみ、4文字以上20文字以下（先頭は英文字）で入力してください。">
 				</div>
 
 				<div class="mb-3">
@@ -227,13 +228,14 @@ body.tea-theme {
 						style="color: var(--tea-badge-required); font-weight: 500;"></div>
 				</div>
 
+				<%-- 🌟 修正ポイント：郵便番号のハイフン許容（maxlengthを8に、patternを追加） --%>
 				<div class="mb-3">
 					<label for="zipCode" class="form-label fw-bold">郵便番号 <span
 						class="badge badge-tea-req">必須</span></label> <input type="text"
 						class="form-control p-postal-code" id="zipCode" name="postalCode"
-						value="<%=postalCode%>" placeholder="1234567（ハイフンなし）"
-						maxlength="7" inputmode="numeric" required>
-					<div class="form-text small text-muted">※半角数字7桁でご入力ください。</div>
+						value="<%=postalCode%>" placeholder="123-4567（ハイフンあり・なし可）"
+						maxlength="8" pattern="\d{3}-?\d{4}" required>
+					<div class="form-text small text-muted">※ハイフンは自動で補完されます。</div>
 				</div>
 
 				<div class="mb-3">
@@ -245,11 +247,13 @@ body.tea-theme {
 					<div class="form-text small text-muted">※郵便番号からの自動補完後、番地や建物名を追記してください。</div>
 				</div>
 
+				<%-- 🌟 修正ポイント：電話番号のハイフン許容（maxlengthを13に、patternを追加） --%>
 				<div class="mb-3">
 					<label for="tel" class="form-label fw-bold">電話番号 <span
 						class="badge badge-tea-req">必須</span></label> <input type="tel"
 						class="form-control" id="tel" name="tel" value="<%=tel%>"
-						placeholder="090-1234-5678" required>
+						placeholder="090-1234-5678（ハイフンあり・なし可）" maxlength="13"
+						pattern="\d{2,4}-?\d{2,4}-?\d{4}" required>
 				</div>
 
 				<div class="section-divider">
@@ -295,27 +299,50 @@ body.tea-theme {
 	</div>
 
 	<script>
-// 各種バリデーション＆入力制御処理（完全に統一連動）
+// 各種バリデーション＆入力制御処理
 document.addEventListener("DOMContentLoaded", function() {
     const emailInput = document.getElementById("email");
     const emailConfirmInput = document.getElementById("emailConfirm");
     const emailError = document.getElementById("emailError");
     const emailConfirmError = document.getElementById("emailConfirmError");
     const zipInput = document.getElementById("zipCode"); 
+    const telInput = document.getElementById("tel"); 
     const form = document.querySelector("form");
 
-    // ⚡ 郵便番号のリアルタイム整形スクリプト
-    zipInput.addEventListener("input", function() {
-        let value = zipInput.value;
-        
-        // 全角を半角に変換
-        value = value.replace(/[０-９]/g, function(s) {
+    // 🌟 修正ポイント：郵便番号の自動整形（フォーカスが外れた時にハイフンを追加）
+    zipInput.addEventListener("blur", function() {
+        let val = this.value;
+        // 全角数字を半角に変換
+        val = val.replace(/[０-９]/g, function(s) {
             return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
         });
+        // 数字以外を除去
+        val = val.replace(/\D/g, ""); 
         
-        // 数字以外の記号（ハイフンなど）を除去
-        value = value.replace(/[^0-9]/g, '');
-        zipInput.value = value;
+        if (val.length === 7) {
+            this.value = val.slice(0, 3) + "-" + val.slice(3);
+        }
+    });
+
+    // 🌟 修正ポイント：電話番号の自動整形（フォーカスが外れた時にハイフンを追加）
+    telInput.addEventListener("blur", function() {
+        let val = this.value;
+        // 全角数字を半角に変換
+        val = val.replace(/[０-９]/g, function(s) {
+            return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
+        });
+        // 数字以外を除去
+        val = val.replace(/\D/g, ""); 
+        
+        if (val.length === 11) {
+            this.value = val.slice(0, 3) + "-" + val.slice(3, 7) + "-" + val.slice(7);
+        } else if (val.length === 10) {
+            if (val.startsWith("03") || val.startsWith("06")) {
+                this.value = val.slice(0, 2) + "-" + val.slice(2, 6) + "-" + val.slice(6);
+            } else {
+                this.value = val.slice(0, 3) + "-" + val.slice(3, 6) + "-" + val.slice(6);
+            }
+        }
     });
 
     // メールアドレスの形式チェック
@@ -358,12 +385,15 @@ document.addEventListener("DOMContentLoaded", function() {
     form.addEventListener("submit", function(event) {
         const isEmailValid = validateEmail();
         const isConfirmValid = validateConfirmEmail();
-        const isZipValid = zipInput.value.length === 7;
+        
+        // 🌟 修正ポイント：ハイフンを含んだ状態での桁数（8桁）またはハイフンなし（7桁）を許容
+        const zipValue = zipInput.value.replace(/\D/g, ""); // 数字だけの長さをチェック
+        const isZipValid = zipValue.length === 7;
 
         if (!isEmailValid || !isConfirmValid || !isZipValid) {
             event.preventDefault(); 
             if (!isZipValid) {
-                alert("郵便番号はハイフンなしの7桁で入力してください。");
+                alert("郵便番号は7桁の数字で入力してください。");
             } else {
                 alert("メールアドレスの入力内容に不備があります。修正してください。");
             }

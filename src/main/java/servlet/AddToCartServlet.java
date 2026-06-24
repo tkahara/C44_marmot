@@ -14,7 +14,7 @@ import jakarta.servlet.http.HttpSession;
 import dao.ProductsDAO;
 import model.Products;
 
-@WebServlet("/addToCart") // URLパターンはそのまま維持しています
+@WebServlet("/addToCart") 
 public class AddToCartServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
@@ -22,10 +22,11 @@ public class AddToCartServlet extends HttpServlet {
             throws ServletException, IOException {
         
         // 1. 詳細画面から送られてきた「商品名」と「選択された数量」を受け取る
+        request.setCharacterEncoding("UTF-8"); // 文字化け防止を先頭に追加
         String productName = request.getParameter("productName");
         String qtyStr = request.getParameter("quantity");
         
-        // 数量の初期値は1にしておき、JSPから送られてきたら数値に変換する
+        // 数量の初期値は1にしておき、JSPから送られてたら数値に変換する
         int quantity = 1;
         if (qtyStr != null && !qtyStr.isEmpty()) {
             quantity = Integer.parseInt(qtyStr);
@@ -54,11 +55,25 @@ public class AddToCartServlet extends HttpServlet {
                 }
                 
                 if (existProduct != null) {
-                    // すでにある場合は、現在の数量に新しく選ばれた数量を足し算（合算）
-                    cartMap.put(existProduct, cartMap.get(existProduct) + quantity);
+                    // 🌟すでにある場合は、現在の数量に新しく選ばれた数量を足し算（合算）
+                    int totalQuantity = cartMap.get(existProduct) + quantity;
+                    
+                    // 【追加】合算して10個を超えていたら、強制的に10個にする
+                    if (totalQuantity > 10) {
+                        totalQuantity = 10;
+                    }
+                    
+                    cartMap.put(existProduct, totalQuantity);
                 } else {
-                    // 初めて追加する商品の場合は、そのまま数量をセット
-                    cartMap.put(selectedProduct, quantity);
+                    // 🌟初めて追加する商品の場合は、そのまま数量をセット
+                    int totalQuantity = quantity;
+                    
+                    // 【追加】念のため、最初から10個より多く選ばれていた場合も10個にする
+                    if (totalQuantity > 10) {
+                        totalQuantity = 10;
+                    }
+                    
+                    cartMap.put(selectedProduct, totalQuantity);
                 }
             }
         }
@@ -71,11 +86,8 @@ public class AddToCartServlet extends HttpServlet {
         String referer = request.getHeader("Referer");
         
         if (referer != null && !referer.isEmpty()) {
-            // 元のURLにすでにパラメータ（?や&）があるかどうかで分岐
-            // 戻った後にサイドカートを自動オープンさせるため「added=true」を付与します
             String redirectUrl;
             if (referer.contains("added=true")) {
-                // すでに付いている場合はそのまま戻す
                 redirectUrl = referer;
             } else if (referer.contains("?")) {
                 redirectUrl = referer + "&added=true";
