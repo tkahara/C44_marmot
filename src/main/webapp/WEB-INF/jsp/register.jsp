@@ -6,6 +6,9 @@
 String msg = (String) request.getAttribute("msg");
 User regUser = (User) request.getAttribute("registeredUser");
 
+// 🌟【残し】インクルードされる側(cartSideBar.jspなど)のエラーを防ぐため、ここで型宣言をして準備
+java.text.NumberFormat nf = null;
+
 // 登録失敗時に入力値を復元するための変数
 String userId = (regUser != null) ? regUser.getUserId() : "";
 String name = (regUser != null) ? regUser.getUserName() : "";
@@ -228,7 +231,6 @@ body.tea-theme {
 						style="color: var(--tea-badge-required); font-weight: 500;"></div>
 				</div>
 
-				<%-- 🌟 修正ポイント：郵便番号のハイフン許容（maxlengthを8に、patternを追加） --%>
 				<div class="mb-3">
 					<label for="zipCode" class="form-label fw-bold">郵便番号 <span
 						class="badge badge-tea-req">必須</span></label> <input type="text"
@@ -247,7 +249,6 @@ body.tea-theme {
 					<div class="form-text small text-muted">※郵便番号からの自動補完後、番地や建物名を追記してください。</div>
 				</div>
 
-				<%-- 🌟 修正ポイント：電話番号のハイフン許容（maxlengthを13に、patternを追加） --%>
 				<div class="mb-3">
 					<label for="tel" class="form-label fw-bold">電話番号 <span
 						class="badge badge-tea-req">必須</span></label> <input type="tel"
@@ -309,14 +310,12 @@ document.addEventListener("DOMContentLoaded", function() {
     const telInput = document.getElementById("tel"); 
     const form = document.querySelector("form");
 
-    // 🌟 修正ポイント：郵便番号の自動整形（フォーカスが外れた時にハイフンを追加）
+    // 郵便番号の自動整形
     zipInput.addEventListener("blur", function() {
         let val = this.value;
-        // 全角数字を半角に変換
         val = val.replace(/[０-９]/g, function(s) {
             return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
         });
-        // 数字以外を除去
         val = val.replace(/\D/g, ""); 
         
         if (val.length === 7) {
@@ -324,14 +323,12 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
-    // 🌟 修正ポイント：電話番号の自動整形（フォーカスが外れた時にハイフンを追加）
+    // 電話番号の自動整形
     telInput.addEventListener("blur", function() {
         let val = this.value;
-        // 全角数字を半角に変換
         val = val.replace(/[０-９]/g, function(s) {
             return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
         });
-        // 数字以外を除去
         val = val.replace(/\D/g, ""); 
         
         if (val.length === 11) {
@@ -386,8 +383,7 @@ document.addEventListener("DOMContentLoaded", function() {
         const isEmailValid = validateEmail();
         const isConfirmValid = validateConfirmEmail();
         
-        // 🌟 修正ポイント：ハイフンを含んだ状態での桁数（8桁）またはハイフンなし（7桁）を許容
-        const zipValue = zipInput.value.replace(/\D/g, ""); // 数字だけの長さをチェック
+        const zipValue = zipInput.value.replace(/\D/g, ""); 
         const isZipValid = zipValue.length === 7;
 
         if (!isEmailValid || !isConfirmValid || !isZipValid) {
@@ -401,6 +397,8 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 });
 </script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 </html>

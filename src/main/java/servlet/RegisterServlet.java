@@ -96,7 +96,7 @@ public class RegisterServlet extends HttpServlet {
         // 💡 2. 形式がすべて正常なら、RegisterLogicに一任する
         RegisterLogic registerLogic = new RegisterLogic();
         
-        // 🌟【ここを変更】boolean ではなく String で詳細なエラーメッセージを受け取る
+        // 🌟 String で詳細なエラーメッセージを受け取る
         String dbErrorMsg = registerLogic.execute(newUser);
         
         // 3. 結果に応じた画面遷移
@@ -104,6 +104,9 @@ public class RegisterServlet extends HttpServlet {
             // 🟢 登録成功（エラーメッセージがない）場合：自動ログイン状態にしてメイン画面へ
             HttpSession session = request.getSession();
             session.setAttribute("loginUser", newUser); 
+            
+            // 🌟【追加】登録成功フラグをセッションに入れる（main.jsp側などのポップアップ表示トリガーになります）
+            session.setAttribute("registerSuccess", true);
             
             response.sendRedirect("main");
         } else {

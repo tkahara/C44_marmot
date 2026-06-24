@@ -2,6 +2,15 @@
 <%@ page import="java.util.Map" %>
 <%@ page import="model.Products" %>
 <%
+    // 変数 nf が既に存在するかチェックして、なければ作る（保険付き宣言）
+    if (pageContext.getAttribute("nf") == null) {
+        pageContext.setAttribute("nf", java.text.NumberFormat.getNumberInstance());
+    }
+    // 使うときはこれ
+    java.text.NumberFormat nf = (java.text.NumberFormat) pageContext.getAttribute("nf");
+
+    
+    
     // 🌟【重要】ブラウザのキャッシュを無効化（「戻る」ボタン対策）
     // これにより、戻るボタンを押した際もブラウザキャッシュを使わず、必ずこのJSPのチェックが走ります
     response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1
@@ -57,7 +66,7 @@
 
 <div class="container my-5" style="max-width: 700px;">
     <div class="card shadow-sm p-5 bg-white text-center mb-4">
-        <div class="mb-3 text-success" style="font-size: 4rem;">🎉</div>
+        <div class="mb-3 text-success" style="font-size: 4rem;">🍪</div>
         <h2 class="fw-bold text-dark">ご注文ありがとうございました！</h2>
         <p class="text-muted">ご注文手続きが正常に完了いたしました。</p>
     </div>
@@ -83,12 +92,12 @@
                 <tr>
                     <td><span class="fw-bold"><%= p.getProductName() %></span></td>
                     <td class="text-center"><%= qty %></td>
-                    <td class="text-end"><%= subTotal %> 円</td>
+                    <td class="text-end"><%= nf.format(subTotal) %> 円</td>
                 </tr>
             <% } } %>
                 <tr class="table-light">
                     <td colspan="2" class="text-end fw-bold text-danger">合計金額</td>
-                    <td class="text-end fw-bold text-danger fs-5"><%= completeTotalAmount %> 円</td>
+                    <td class="text-end fw-bold text-danger fs-5"><%= nf.format(completeTotalAmount) %> 円</td>
                 </tr>
             </tbody>
         </table>

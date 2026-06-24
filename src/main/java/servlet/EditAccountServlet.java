@@ -115,6 +115,78 @@ public class EditAccountServlet extends HttpServlet {
             if (field.equals("card_num")) field = "card_number";
         }
 
+        // 🛑 【追加】バリデーション（入力チェック）処理
+        StringBuilder errorMsg = new StringBuilder();
+        String fieldLabel = ""; // エラーで戻すとき用の日本語ラベル
+
+        switch (field) {
+            case "password":
+                fieldLabel = "パスワード";
+                if (newValue == null || newValue.length() < 6) {
+                    errorMsg.append("・パスワードは6文字以上で入力してください。<br>");
+                }
+                break;
+
+            case "user_name":
+                fieldLabel = "氏名";
+                if (newValue == null || newValue.trim().isEmpty()) {
+                    errorMsg.append("・お名前を入力してください。<br>");
+                }
+                break;
+
+            case "email":
+                fieldLabel = "メールアドレス";
+                String emailPattern = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
+                if (newValue == null || !newValue.matches(emailPattern)) {
+                    errorMsg.append("・メールアドレスの形式が正しくありません。<br>");
+                }
+                break;
+
+            case "postal_code":
+                fieldLabel = "郵便番号";
+                if (newValue == null || newValue.length() != 7) {
+                    errorMsg.append("・郵便番号は7桁の数字で入力してください。<br>");
+                }
+                break;
+
+            case "address":
+                fieldLabel = "配送先住所";
+                if (newValue == null || newValue.trim().isEmpty()) {
+                    errorMsg.append("・ご住所を入力してください。<br>");
+                }
+                break;
+
+            case "phone_number":
+                fieldLabel = "電話番号";
+                if (newValue == null || newValue.length() < 10 || newValue.length() > 11) {
+                    errorMsg.append("・電話番号は10桁または11桁の数字で入力してください。<br>");
+                }
+                break;
+                
+            case "card_number":
+                fieldLabel = "クレジットカード番号";
+                break;
+            case "card_name":
+                fieldLabel = "カード名義";
+                break;
+            case "card_expiration":
+                fieldLabel = "カード有効期限";
+                break;
+        }
+
+        // ⚡ エラーメッセージが存在する場合、DB更新をせずに編集画面に戻す
+        if (errorMsg.length() > 0) {
+            request.setAttribute("errorMsg", errorMsg.toString());
+            request.setAttribute("field", field);
+            request.setAttribute("fieldLabel", fieldLabel);
+            request.setAttribute("currentValue", newValue); // 入力しようとした値を残す
+
+            RequestDispatcher dispatcher = request.getRequestDispatcher("WEB-INF/jsp/editAccount.jsp");
+            dispatcher.forward(request, response);
+            return; // 処理を終了し、下のDB更新へ行かせない
+        }
+
+        // ----------------- ここから下のDB更新処理は正常時のみ実行されます -----------------
         String sql = "UPDATE USERS SET " + field + " = ? WHERE user_id = ?";
 
         try { Class.forName("com.mysql.cj.jdbc.Driver"); } catch (ClassNotFoundException e) { throw new IllegalStateException(e); }
@@ -167,14 +239,11 @@ public class EditAccountServlet extends HttpServlet {
                 }
                 session.setAttribute("loginUser", loginUser);
             }
-         // ⭕ 修正後（エラーが起きたらTomcatのエラー画面を表示して原因を教えてくれる）
         } catch (SQLException e) {
             e.printStackTrace();
-            // 🌟発生したSQLエラーをそのままスローして画面に表示させる
             throw new ServletException("データベースの更新に失敗しました。カラム名やデータ型、入力値を確認してください。", e);
         }
 
-        // 🌟正常に更新できたときだけリダイレクトする
         response.sendRedirect(request.getContextPath() + "/MyPageServlet");
     }
 }

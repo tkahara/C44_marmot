@@ -3,6 +3,14 @@
 <%@ page import="java.util.Map"%>
 <%@ page import="model.Products"%>
 <%
+// 型（NumberFormat）は書かない！ 代入するだけにする
+nf = (java.text.NumberFormat) pageContext.getAttribute("nf");
+
+// もし親ページ側で全く作られていなかった場合の保険
+if (nf == null) {
+	nf = java.text.NumberFormat.getNumberInstance();
+	pageContext.setAttribute("nf", nf);
+}
 // カートの構造を Map<Products, Integer> (商品と数量のペア) に変更します
 Map<Products, Integer> cartMap = (Map<Products, Integer>) session.getAttribute("cartMap");
 int totalAmount = 0;
@@ -41,17 +49,18 @@ int totalAmount = 0;
 				<div class="d-flex justify-content-between align-items-start mb-2">
 					<div style="max-width: 70%;">
 						<h6 class="mb-1 fw-bold"><%=p.getProductName()%></h6>
-						<small class="text-muted">単価: <%=p.getPrice()%>円</small>
+						<small class="text-muted">単価: <%=nf.format(p.getPrice())%>円
+						</small>
 					</div>
-					<span class="text-danger fw-bold fs-5"><%=subTotal%>円</span>
+					<span class="text-danger fw-bold fs-5"><%=nf.format(subTotal)%>円</span>
 				</div>
 
 				<div class="d-flex justify-content-between align-items-center">
 					<div class="d-flex align-items-center">
 						<span class="text-muted small me-2">数量:</span>
 						<form action="CartUpdateServlet" method="POST" class="m-0">
-							<input type="hidden" name="action" value="update"> 
-							<input type="hidden" name="productName" value="<%=p.getProductName()%>"> 
+							<input type="hidden" name="action" value="update"> <input
+								type="hidden" name="productName" value="<%=p.getProductName()%>">
 							<select name="quantity" class="form-select form-select-sm"
 								style="width: 75px;" onchange="this.form.submit()">
 								<%
@@ -66,11 +75,10 @@ int totalAmount = 0;
 					</div>
 
 					<form action="CartUpdateServlet" method="POST" class="m-0">
-						<input type="hidden" name="action" value="delete"> 
-						<input type="hidden" name="productName" value="<%=p.getProductName()%>">
+						<input type="hidden" name="action" value="delete"> <input
+							type="hidden" name="productName" value="<%=p.getProductName()%>">
 						<button type="submit" class="btn btn-outline-danger btn-sm px-3">
-							キャンセル
-						</button>
+							キャンセル</button>
 					</form>
 				</div>
 			</div>
@@ -98,12 +106,12 @@ int totalAmount = 0;
 			} else {
 			%>
 			<h5 class="text-end fw-bold mb-3">
-				合計: <span class="text-danger"><%=totalAmount%></span> 円
+				合計: <span class="text-danger"><%=nf.format(totalAmount)%></span> 円
 			</h5>
 			<div class="d-grid gap-2">
 				<a href="${pageContext.request.contextPath}/CheckoutServlet"
-					class="btn btn-success btn-lg"> 購入手続きへ進む </a> 
-				<a href="${pageContext.request.contextPath}/main"
+					class="btn btn-success btn-lg"> 購入手続きへ進む </a> <a
+					href="${pageContext.request.contextPath}/main"
 					class="btn btn-outline-secondary"> 買い物を続ける（商品一覧へ） </a>
 			</div>
 			<%

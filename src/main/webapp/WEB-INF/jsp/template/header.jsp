@@ -12,10 +12,15 @@
 <link rel="stylesheet"
 	href="${pageContext.request.contextPath}/css/header.css">
 <link rel="stylesheet"
-	href="<%= request.getContextPath() %>/css/cartsidebar.css">
+	href="<%=request.getContextPath()%>/css/cartsidebar.css">
 </head>
 <body class="d-flex flex-column min-vh-100">
-
+	<%
+	// すでにインスタンスがあれば再利用し、なければ生成して pageContext に保存
+	if (pageContext.getAttribute("nf") == null) {
+		pageContext.setAttribute("nf", java.text.NumberFormat.getNumberInstance());
+	}
+	%>
 	<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
 		<div class="container">
 

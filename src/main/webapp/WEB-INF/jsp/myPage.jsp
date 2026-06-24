@@ -2,6 +2,12 @@
 	pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="jakarta.tags.core"%>
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt"%>
+<%@ page import="java.text.NumberFormat"%>
+<%
+// ここで唯一、nfを生成し、pageContextに保存する
+NumberFormat nf = NumberFormat.getNumberInstance();
+pageContext.setAttribute("nf", nf);
+%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -328,47 +334,53 @@ body.tea-theme {
 				<c:otherwise>
 					<div class="table-responsive">
 						<table class="table table-hover align-middle tea-table m-0">
-							<thead>
-								<tr>
-									<th>注文日時</th>
-									<th>商品名</th>
-									<th class="text-center">単価</th>
-									<th class="text-center">数量</th>
-									<th class="text-end">合計金額</th>
-									<th class="text-center">決済方法</th>
-								</tr>
-							</thead>
-							<tbody>
-								<c:forEach var="order" items="${orderHistory}">
+
+							<table
+								class="table table-hover align-middle tea-table m-0 text-nowrap">
+								<thead>
 									<tr>
-										<td class="text-muted" style="font-size: 0.9rem;"><c:out
-												value="${order.orderDate.toString().replace('T', ' ').substring(0, 16)}" />
-										</td>
-										<td><span class="fw-bold" style="color: var(--tea-dark);"><c:out
-													value="${order.productName}" /></span></td>
-										<td class="text-center"><fmt:formatNumber
-												value="${order.unitPrice}" type="currency"
-												currencySymbol="¥" maxFractionDigits="0" /></td>
-										<td class="text-center"><c:out value="${order.quantity}" /></td>
-										<td class="text-end fw-bold"
-											style="color: var(--tea-primary);"><fmt:formatNumber
-												value="${order.totalPrice}" type="currency"
-												currencySymbol="¥" maxFractionDigits="0" /></td>
-										<td class="text-center"><span class="badge badge-tea">
-												<c:choose>
-													<c:when test="${order.paymentMethod == 'credit'}">クレジットカード</c:when>
-													<c:when test="${order.paymentMethod == 'bank'}">銀行振込</c:when>
-													<c:when test="${order.paymentMethod == 'convenience'}">コンビニ決済</c:when>
-													<c:when test="${order.paymentMethod == 'cod'}">代金引換</c:when>
-													<c:otherwise>
-														<c:out value="${order.paymentMethod}" />
-													</c:otherwise>
-												</c:choose>
-										</span></td>
+										<th>注文日時</th>
+										<th>商品名</th>
+										<th class="text-center">単価</th>
+										<th class="text-center">数量</th>
+										<th class="text-end">合計金額</th>
+										<th class="text-center">決済方法</th>
 									</tr>
-								</c:forEach>
-							</tbody>
-						</table>
+								</thead>
+								<tbody>
+									<c:forEach var="order" items="${orderHistory}">
+										<tr>
+											<td class="text-muted" style="font-size: 0.9rem;"><c:out
+													value="${order.orderDate.toString().replace('T', ' ').substring(0, 16)}" />
+											</td>
+											<td><span class="fw-bold"
+												style="color: var(--tea-dark);"> <c:out
+														value="${order.productName}" />
+											</span></td>
+											<td class="text-center"><fmt:formatNumber
+													value="${order.unitPrice}" type="currency"
+													currencySymbol="¥" maxFractionDigits="0" /></td>
+											<td class="text-center"><c:out value="${order.quantity}" />
+											</td>
+											<td class="text-end fw-bold"
+												style="color: var(--tea-primary);"><fmt:formatNumber
+													value="${order.totalPrice}" type="currency"
+													currencySymbol="¥" maxFractionDigits="0" /></td>
+											<td class="text-center"><span class="badge badge-tea">
+													<c:choose>
+														<c:when test="${order.paymentMethod == 'credit'}">クレジットカード</c:when>
+														<c:when test="${order.paymentMethod == 'bank'}">銀行振込</c:when>
+														<c:when test="${order.paymentMethod == 'convenience'}">コンビニ決済</c:when>
+														<c:when test="${order.paymentMethod == 'cod'}">代金引換</c:when>
+														<c:otherwise>
+															<c:out value="${order.paymentMethod}" />
+														</c:otherwise>
+													</c:choose>
+											</span></td>
+										</tr>
+									</c:forEach>
+								</tbody>
+							</table>
 					</div>
 				</c:otherwise>
 			</c:choose>
