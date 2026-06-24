@@ -18,20 +18,35 @@
             </div>
             
             <div class="col-md-6">
-                <h1 class="fw-bold"><%= products.getProductName() %></h1>
+                <h1 class="fw-bold" style="color: #4A3325;"><%= products.getProductName() %></h1>
                 <h3 class="text-danger fw-bold my-3"><%= products.getPrice() %> 円（税込）</h3>
-                <hr>
-                <p class="lead"><%= products.getDescription() %></p>
+                <hr style="border-color: rgba(111, 78, 55, 0.15);">
+                
+                <div class="product-description-section mb-4">
+                    <p class="lead mb-2" style="line-height: 1.6; color: #4A3325;"><%= products.getDescription() %></p>
+                    
+                    <%-- 💡 追記：おひとり様10点までの米印注意書き --%>
+    
+                </div>
                 
                 <form action="addToCart" method="post" class="mt-4">
                     <input type="hidden" name="productName" value="<%= products.getProductName() %>">
                     
-                    <div class="mb-3 d-flex align-items-center gap-2" style="max-width: 200px;">
-                        <label class="form-label mb-0 text-nowrap">数量：</label>
-                        <input type="number" class="form-control" name="quantity" value="1" min="1">
+                    <div class="mb-4 d-flex align-items-center gap-2" style="max-width: 200px;">
+                        <label for="quantity" class="form-label mb-0 text-nowrap fw-bold" style="color: #4A3325;">数量：</label>
+                        
+                        <%-- 💡 修正：input[type=number] から 1〜10 のプルダウン（選択式）へ変更 --%>
+                        <select class="form-select" id="quantity" name="quantity" required style="border: 1px solid rgba(111, 78, 55, 0.25);">
+                            <% for(int i = 1; i <= 10; i++) { %>
+                                <option value="<%= i %>"><%= i %></option>
+                            <% } %>
+                        </select>
                     </div>
                     
-                    <button type="submit" class="btn btn-success btn-lg w-100">🛒 カートに追加する</button>
+                    <%-- ☕ ボタンの色も、もしTea Salonのテーマに合わせるなら以下のように変更可能です --%>
+                    <button type="submit" class="btn btn-lg w-100 text-white fw-bold" style="background-color: #6F4E37; border-radius: 6px; box-shadow: 0 2px 4px rgba(111,78,55,0.2);">
+                        🛒 カートに追加する
+                    </button>
                 </form>
             </div>
         </div>
@@ -45,8 +60,7 @@
 <%@ include file="template/footer.jsp" %>
 
 <%-- 
-  ★ここから追加：カート自動オープン用のJavaScript 
-  サーブレット側からリダイレクトやフォワードのURLパラメータとして「added=true」が送られてきた時だけ発動します
+  ★カート自動オープン用のJavaScript 
 --%>
 <%
     String added = request.getParameter("added");
@@ -54,11 +68,8 @@
 %>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            // template/cartSideBar.jsp の中にある id="sideCart" の要素を取得します
             var sideCartElement = document.getElementById('sideCart');
-            
             if (sideCartElement) {
-                // BootstrapのOffcanvas機能を使って、裏側から自動で開きます
                 var bsOffcanvas = new bootstrap.Offcanvas(sideCartElement);
                 bsOffcanvas.show();
             }

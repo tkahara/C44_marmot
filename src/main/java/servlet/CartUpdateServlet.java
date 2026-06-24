@@ -50,6 +50,12 @@ public class CartUpdateServlet extends HttpServlet {
                 } else if ("update".equals(action) && qtyStr != null) {
                     // ★数量変更処理：選択された新しい数量に書き換える
                     int newQty = Integer.parseInt(qtyStr);
+                    
+                    // 🌟【追加】上限ストッパー：もし10個を超えていたら強制的に10個にする
+                    if (newQty > 10) {
+                        newQty = 10;
+                    }
+                    
                     cartMap.put(targetProduct, newQty);
                 }
             }
@@ -61,9 +67,7 @@ public class CartUpdateServlet extends HttpServlet {
         // 元の画面（詳細画面 or 一覧画面）にサイドカートを開いた状態でリダイレクト
         String referer = request.getHeader("Referer");
         if (referer != null) {
-            // URLにすでにパラメータが含まれているかを判定
             if (referer.contains("?")) {
-                // 重複を防ぐため一度「added=true」を消去してから綺麗に繋ぎ直す
                 String cleanReferer = referer.replaceAll("[&?]added=true", "");
                 String connector = cleanReferer.contains("?") ? "&" : "?";
                 response.sendRedirect(cleanReferer + connector + "added=true");

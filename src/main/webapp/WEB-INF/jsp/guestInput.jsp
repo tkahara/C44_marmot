@@ -161,7 +161,7 @@
             
             <div class="mb-3">
                 <label for="tel" class="form-label fw-bold">電話番号 <span class="badge badge-tea-req">必須</span></label>
-                <input type="tel" class="form-control" id="tel" name="tel" placeholder="090-1234-5678" required>
+                <input type="tel" class="form-control" id="tel" name="tel" placeholder="09012345678（ハイフンなし）" required>
             </div>
             
             <div class="mb-4">
@@ -199,7 +199,7 @@
             
             <div class="d-grid gap-2">
                 <button type="submit" class="btn btn-tea-submit btn-lg">購入確認画面へ進む ➔</button>
-                <a href="MainServlet" class="btn btn-tea-outline">カートに戻る</a>
+                <a href="productDetail" class="btn btn-tea-outline">カートに戻る</a>
             </div>
             
         </form>
