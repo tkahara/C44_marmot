@@ -1,0 +1,163 @@
+/* ==========================================================================
+   マーモット茶専門店：ログイン・ログアウトモーダル専用カスタムCSS
+   ========================================================================== */
+
+/* モーダルウィンドウの全体コンテナ */
+.modal-content {
+    background-color: #fcf8f2; /* 画像の背景に合わせた柔らかなクリーム色 */
+    border: 1px solid #c59b6d; /* ロゴのゴールドをイメージした上品な外枠 */
+    border-radius: 8px; /* 緩やかで落ち着いた角丸 */
+    box-shadow: 0 10px 30px rgba(74, 59, 50, 0.15); /* 深みのあるブラウン系の影 */
+    color: #4a3b32; /* お茶を連想させる深みのあるダークブラウンの文字色 */
+
+    /* 【追加】表示・遷移時のボケや歪みを防ぐハードウェアアクセラレーション */
+    transform: translateZ(0);
+    will-change: transform;
+    backface-visibility: hidden;
+    -webkit-font-smoothing: subpixel-antialiased;
+}
+
+/* 【追加】Bootstrapのフェードアニメーション時の微小な歪みを完全に固定 */
+.modal.fade .modal-dialog {
+    transform: translate3d(0, -50px, 0);
+    will-change: transform;
+}
+.modal.show .modal-dialog {
+    transform: translate3d(0, 0, 0) !important;
+}
+
+/* モーダルのヘッダー（タイトル部分） */
+.modal-header {
+    background-color: #e3c49a; /* 画像上部ヘッダーと共通の気品あるベージュ */
+    border-bottom: 1px solid #c59b6d;
+    border-top-left-radius: 7px;
+    border-top-right-radius: 7px;
+    padding: 16px 24px;
+    align-items: center; /* 【追加】縦方向の中央揃えを確実にする */
+}
+
+/* ヘッダーのタイトル文字 */
+.modal-title {
+    font-family: 'Hiragino Mincho ProN', 'MS Mincho', serif; /* 和モダンな明朝体 */
+    font-weight: bold;
+    color: #4a3b32;
+    font-size: 1.15rem;
+    letter-spacing: 0.05em;
+}
+
+/* 閉じるボタン（右上「×」）のカスタマイズ */
+.modal-header .btn-close {
+    background-color: rgba(255, 255, 255, 0.4);
+    border-radius: 50%;
+    padding: 8px;
+    opacity: 0.7;
+    transition: all 0.2s ease;
+    
+    /* 【追加】Bootstrap標準の「×」アイコンの歪みを防ぎ、綺麗な正円を保つ設定 */
+    box-sizing: border-box;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.modal-header .btn-close:hover {
+    background-color: rgba(255, 255, 255, 0.8);
+    opacity: 1;
+}
+
+/* モーダルの中身（入力フォームエリア） */
+.modal-body {
+    padding: 28px 24px;
+}
+
+/* 入力項目のラベル（「ユーザーID」「パスワード」） */
+.form-label {
+    font-weight: 600;
+    color: #5c4a3c;
+    margin-bottom: 8px;
+    font-size: 0.95rem;
+}
+
+/* テキスト入力欄（インプットボックス） */
+.form-control {
+    background-color: #ffffff;
+    border: 1px solid #dcd1c4;
+    border-radius: 4px;
+    color: #4a3b32;
+    padding: 10px 14px;
+    transition: all 0.3s ease;
+}
+/* 入力欄にフォーカス（クリック）したときのエフェクト */
+.form-control:focus {
+    background-color: #ffffff;
+    border-color: #c59b6d; /* ゴールド系の枠線に変調 */
+    color: #4a3b32;
+    box-shadow: 0 0 0 0.25rem rgba(197, 155, 109, 0.25); /* 柔らかなゴールドの光輪 */
+}
+/* プレースホルダー（薄い文字）の色調整 */
+.form-control::placeholder {
+    color: #bfaea0;
+}
+
+/* モーダルのフッター（ボタン配置エリア） */
+.modal-footer {
+    border-top: 1px solid #eadecc;
+    padding: 16px 24px;
+    background-color: #f9f3ea; /* フッターのみわずかにトーンを落としたクリーム色 */
+    border-bottom-left-radius: 7px;
+    border-bottom-right-radius: 7px;
+    justify-content: flex-end; /* 【追加】ボタンを右寄せに固定 */
+}
+
+/* ==========================================================================
+   ボタン各種のテイスト変更（Bootstrap標準クラスのオーバーライド）
+   ========================================================================== */
+
+/* 1. 共通ボタンベース */
+.modal-content .btn {
+    font-weight: 600;
+    padding: 8px 20px;
+    font-size: 0.9rem;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+/* 2. キャンセルボタン（旧 btn-secondary） */
+.modal-content .btn-secondary {
+    background-color: transparent;
+    border: 1px solid #bfaea0;
+    color: #7a6655;
+}
+.modal-content .btn-secondary:hover {
+    background-color: #eadecc;
+    border-color: #bfaea0;
+    color: #4a3b32;
+}
+
+/* 3. ログインボタン（旧 btn-primary） */
+.modal-content .btn-primary {
+    background-color: #4a3b32; /* お茶・ロゴの最も深いブラウン */
+    border: 1px solid #4a3b32;
+    color: #fcf8f2;
+}
+.modal-content .btn-primary:hover,
+.modal-content .btn-primary:focus {
+    background-color: #c59b6d; /* ホバー時はロゴのゴールドへ美しく変化 */
+    border-color: #c59b6d;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(197, 155, 109, 0.3);
+}
+
+/* 4. ログアウト実行ボタン（旧 btn-danger） */
+.modal-content .btn-danger {
+    background-color: #a64942; /* 雰囲気を壊さない、少しトーンを抑えた和風の赤 */
+    border: 1px solid #a64942;
+    color: #ffffff;
+}
+.modal-content .btn-danger:hover {
+    background-color: #bd534b;
+    border-color: #bd534b;
+    box-shadow: 0 4px 12px rgba(166, 73, 66, 0.3);
+}

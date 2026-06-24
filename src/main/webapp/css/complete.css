@@ -1,0 +1,57 @@
+@charset "UTF-8";
+
+/* ご注文ありがとうございました！の見出し（h2）に適用 */
+.container h2.text-dark {
+	font-size: 26px !important;
+	color: #5C4033 !important; /* ★ネイビーから濃い紅茶ブラウンに変更し、世界観を統一 */
+	font-weight: 700 !important; /* ★見出しの文字をしっかり太くして視認性アップ */
+	text-align: center;
+	margin-top: 10px;
+	margin-bottom: 15px;
+	font-family: "游明朝", YuMincho, serif; /* ★明朝体に変更してブランドの上品さをプラス */
+}
+
+/* ご注文手続きが正常に完了いたしました。の文章に適用 */
+.container p.text-muted {
+	font-size: 15px !important;
+	color: #4A3B32 !important; /* ★アッサムティーのようなダークブラウンに変え、文字を読みやすく */
+	font-weight: 600 !important; /* ★文章の文字を中太にして、背景に埋もれないように強化 */
+	text-align: center;
+	line-height: 1.8;
+}
+
+/* 注文内容の控えなどのフォントを調整 */
+.card h5, .card p {
+	color: #4A3B32 !important;
+}
+
+/* メインページへ戻るリンクボタンのデザイン（★ヘッダー・メインの紅茶色と完全同期） */
+.container .btn-primary {
+	display: block;
+	width: 240px;
+	padding: 16px 0;
+	margin: 30px auto 100px auto;
+	background-color: #C05C46 !important; /* ★ヘッダーと同じ紅茶色（ルイボス・テラコッタ） */
+	color: #ffffff !important;
+	font-size: 16px;
+	font-weight: 800 !important;          /* ★文字の太さを極太にしてハッキリと見やすく */
+	letter-spacing: 1px;                  /* 文字間を少し空けて洗練された印象に */
+	border: none !important;
+	border-radius: 4px;
+	cursor: pointer;
+	box-shadow: 0 4px 12px rgba(92, 64, 51, 0.15); /* ブラウン系の影を調整 */
+	transition: all 0.3s ease;
+	text-align: center;
+	text-decoration: none;
+}
+
+/* ホバー時の洗練されたエフェクトを追加 */
+.container .btn-primary:hover {
+	background-color: #D47A55 !important; /* ★ホバー時は少し明るいアプリコットティー色 */
+	box-shadow: 0 6px 16px rgba(92, 64, 51, 0.25); /* 影を少し深くして、浮き上がりを強調 */
+	transform: translateY(-2px); /* 2ピクセル上に滑らかに持ち上げる */
+}
+
+.container .btn-primary:active {
+	transform: translateY(0);
+}

@@ -6,6 +6,7 @@
 %>
 
 <%@ include file="template/header.jsp" %>
+<link rel="stylesheet" href="${pageContext.request.contextPath}/css/product01.css">
 <%@ include file="template/dialogs.jsp" %>
 <%@ include file="template/cartSideBar.jsp" %>
 

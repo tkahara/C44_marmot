@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-
+  <link rel="stylesheet"
+	href="${pageContext.request.contextPath}/css/footer.css">
     <footer class="bg-dark text-white text-center py-4 mt-auto">
         <div class="container">
             <p class="mb-1">&copy; 2026 マーモット. All Rights Reserved.</p>

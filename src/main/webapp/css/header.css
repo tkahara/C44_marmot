@@ -1,0 +1,217 @@
+@charset "UTF-8";
+/* ==========================================================================
+   header.css：JSPを一切変更せず、ロゴ・ボタン・文字の上下中央を完璧に揃える
+   ========================================================================== */
+
+/* 1. ナビゲーションバー全体の背景色と境界線 */
+nav.navbar.bg-dark {
+	background-color: #DDBC95 !important; /* 画像通りの深みのあるブラウン */
+	border-bottom: 3px solid #c48a43 !important; /* 下部のキャメルゴールド線 */
+	padding-top: 12px !important;  /* 上下の余白を均等に微調整 */
+	padding-bottom: 12px !important;
+	box-shadow: none !important; /* 不要な影をクリア */
+	min-height: 70px !important;  /* ヘッダーの最低の高さを固定して安定させる */
+	font-family: 'Georgia', 'Times New Roman', 'Shippori Mincho', serif;
+}
+
+/* ナビゲーション内部のコンテナ（要素の上下中央揃えを強制） */
+nav.navbar.bg-dark .container {
+	display: flex !important;
+	align-items: center !important; /* すべての要素の縦軸を中心で固定 */
+}
+
+/* 2. ロゴ部分：テキストを消し、丸いロゴ画像を綺麗に拡大する */
+nav.navbar .navbar-brand {
+	background-image: url("../img/Gemini_Generated_Image_dgmlm1dgmlm1dgml-Photoroom.png") !important; /* 画像パス */
+	background-size: cover !important; /* 丸枠いっぱいに画像を収める */
+	background-repeat: no-repeat !important;
+	background-position: center !important;
+	
+	/* 💡 サイズを 45px から 60px に拡大 */
+	width: 100px !important;
+	height: 100px !important;
+	border-radius: 50% !important;
+	border: 1.5px solid #eaddca !important; /* 枠線も少し太くしてクッキリさせる */
+	
+	/* 元のテキスト「🛒 マーモット」を非表示にする */
+	text-indent: -9999px !important;
+	overflow: hidden !important;
+	display: inline-block !important;
+	
+	/* 上下中央揃えを維持し、左右の余白を少し広げる */
+	padding: 0 !important;
+	margin: 0 15px 0 0 !important;
+	align-self: center !important; 
+}
+
+
+/* 3. ボタンとテキストを包むエリア（右側の要素全体）の縦位置調整 */
+nav.navbar .navbar-nav {
+	display: flex !important;
+	align-items: center !important; /* ログイン時・未ログイン時どちらも上下中央に揃える */
+	margin-top: 0 !important;
+	margin-bottom: 0 !important;
+}
+
+/* 4. 会員ログイン時の「ようこそ、会員 様」テキストの配色と位置上書き */
+nav.navbar .navbar-text.text-white {
+	color: #ffffff !important; /* 温かみのあるベージュ */
+	font-family: serif;
+	font-size: 14px !important;
+	line-height: 1 !important; /* 行の高さを潰して位置を安定させる */
+	margin: 0 10px 0 0 !important; /* 右側にだけ少し余白を作る */
+	padding: 0 !important;
+	display: inline-block !important;
+	font-weight: 800 !important;                /* ★太さを bold(700) から 800 に強化 */
+}
+
+/* 5. 全ボタン共通：紅茶色の背景、文字を太字にして視認性を大幅アップ */
+nav.navbar .btn-outline-success,
+nav.navbar .btn-outline-light,
+nav.navbar .btn-warning,
+nav.navbar .btn-outline-info,
+nav.navbar .btn-outline-danger {
+	color: #ffffff !important;
+	border: none !important;                    /* 枠線を消してスッキリ見せる */
+	border-radius: 4px !important;
+	background-color: #C05C46 !important;        /* ★背景を紅茶色（ルイボス・テラコッタ）に */
+	
+	white-space: nowrap !important;
+
+	font-size: 14px !important; 
+	font-weight: 800 !important;                /* ★太さを bold(700) から 800 に強化 */
+	letter-spacing: 0.05em !important;          /* ★文字の間隔をわずかに広げて読みやすく */
+	padding: 8px 18px !important;                /* ★文字の存在感に合わせてボタンの余白を少し拡大 */
+	line-height: 1.2 !important;
+	box-shadow: none !important;
+	transition: all 0.3s ease !important;
+	margin: 0 !important;
+	display: inline-block !important;
+}
+
+/* 6. ホバー時（マウスを載せた時）：少し明るい紅茶色に変化して自然なクリック感を演出 */
+nav.navbar .btn-outline-success:hover,
+nav.navbar .btn-outline-light:hover,
+nav.navbar .btn-warning:hover,
+nav.navbar .btn-outline-info:hover,
+nav.navbar .btn-outline-danger:hover {
+	color: #ffffff !important;                  /* 文字は白のまま維持 */
+	background-color: #D47A55 !important;        /* ★ホバー時は少し明るいアプリコットティー色に */
+	border-color: transparent !important;
+	opacity: 0.9 !important;                    /* ほんのり透明度を出してクリック感を強調 */
+}
+
+
+/* 7. スマホ用ハンバーガーメニューのゴールド化 */
+nav.navbar .navbar-toggler {
+	border-color: #c48a43 !important;
+	margin: 0 !important;
+	padding: 6px 10px !important;
+}
+nav.navbar .navbar-toggler-icon {
+	background-image: url("data:image/svg+xml,%3csvg xmlns='http://w3.org' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28196, 138, 67, 1%29' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
+}
+
+/* ==========================================================================
+   8. 追加コンポーネント（オフキャンバス・モーダル）既存デザイン完全強制同期
+   ========================================================================== */
+
+/* モーダル・オフキャンバス全体のフォント・角丸・影を既存ヘッダーに強制統合 */
+.modal-content,
+.offcanvas {
+	font-family: 'Georgia', 'Times New Roman', 'Shippori Mincho', serif !important;
+	border: none !important;
+	border-radius: 4px !important;
+	box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* ヘッダー背景色：画像通りの深みのあるブラウン / 下部：キャメルゴールド線 */
+.modal-header,
+.offcanvas-header {
+	background-color: #DDBC95 !important;
+	border-bottom: 3px solid #c48a43 !important;
+	padding-top: 15px !important;
+	padding-bottom: 15px !important;
+}
+
+/* ヘッダー内タイトルの装飾（太字・文字間隔の同期） */
+.modal-title,
+.offcanvas-title {
+	font-weight: 800 !important;
+	letter-spacing: 0.05em !important;
+	color: #ffffff !important;
+}
+
+/* 閉じるボタン（×）を上品なキャメルゴールドのSVGに変更 */
+.modal-header .btn-close,
+.offcanvas-header .btn-close {
+	background-image: url("data:image/svg+xml,%3csvg xmlns='http://w3.org' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23c48a43' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M.293.293a1 1 0 0 1 1.414 0L8 6.586 14.293.293a1 1 0 1 1 1.414 1.414L9.414 8l6.293 6.293a1 1 0 0 1-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 0 1-1.414-1.414L6.586 8 .293 1.707a1 1 0 0 1 0-1.414z'/%3e%3c/svg%3e") !important;
+	opacity: 1 !important;
+	box-shadow: none !important;
+	transition: transform 0.2s ease !important;
+}
+.modal-header .btn-close:hover,
+.offcanvas-header .btn-close:hover {
+	transform: scale(1.1);
+}
+
+/* モーダルフッター（ボタンエリア）の境界線と温かみのある薄いベージュ背景 */
+.modal-footer {
+	border-top: 1px solid #eaddca !important;
+	background-color: #fcf9f5 !important;
+	padding: 12px 18px !important;
+}
+
+/* キャンセルボタン：デフォルトのグレーを消し、キャメルゴールドの枠線デザインへ強制変換 */
+.modal-footer .btn-secondary {
+	color: #c48a43 !important;
+	background-color: transparent !important;
+	border: 1.5px solid #c48a43 !important;
+	border-radius: 4px !important;
+	font-size: 14px !important;
+	font-weight: 800 !important;
+	letter-spacing: 0.05em !important;
+	padding: 8px 18px !important;
+	line-height: 1.2 !important;
+	box-shadow: none !important;
+	transition: all 0.3s ease !important;
+}
+.modal-footer .btn-secondary:hover {
+	color: #ffffff !important;
+	background-color: #c48a43 !important;
+	opacity: 0.9 !important;
+}
+
+/* モーダル・オフキャンバス内の標準ボタンもヘッダーの紅茶色に強制同期 */
+.modal-footer .btn-outline-success,
+.modal-footer .btn-outline-danger {
+	color: #ffffff !important;
+	border: none !important;
+	border-radius: 4px !important;
+	background-color: #C05C46 !important;
+	font-size: 14px !important;
+	font-weight: 800 !important;
+	letter-spacing: 0.05em !important;
+	padding: 8px 18px !important;
+	line-height: 1.2 !important;
+	transition: all 0.3s ease !important;
+}
+.modal-footer .btn-outline-success:hover,
+.modal-footer .btn-footer .btn-outline-danger:hover {
+	background-color: #D47A55 !important;
+}
+
+/* --- レスポンシブ（スマホ表示）時のナビゲーション崩れ防止補強 --- */
+@media (max-width: 991.98px) {
+	nav.navbar .navbar-nav {
+		padding-top: 15px !important;
+		padding-bottom: 15px !important;
+		gap: 12px !important;
+	}
+	nav.navbar .navbar-nav .btn,
+	nav.navbar .navbar-text.text-white {
+		width: 100% !important;
+		text-align: center !important;
+		margin: 0 !important;
+	}
+}

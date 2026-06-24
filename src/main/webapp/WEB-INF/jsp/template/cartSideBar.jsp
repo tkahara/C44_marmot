@@ -7,6 +7,7 @@
     int totalAmount = 0;
 %>
 
+<link rel="stylesheet" href="${pageContext.request.contextPath}/css/cartsidebar.css">
 <div class="offcanvas offcanvas-end" tabindex="-1" id="sideCart" aria-labelledby="sideCartLabel">
     
     <div class="offcanvas-header bg-light">

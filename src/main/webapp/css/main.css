@@ -1,0 +1,188 @@
+/* ==========================================
+   紅茶テイスト＆ヘッダー同期スタイル
+   ========================================== */
+
+/* 全体の基本設定（フォントを上品な明朝体ベースに） */
+main.container {
+    font-family: "Times New Roman", "Yu Mincho", "游明朝", "MS PMincho", serif;
+    color: #4A3B32; /* 深みのあるアッサムティーのようなダークブラウン */
+}
+
+/* 「商品一覧」の見出し */
+main.container h2 {
+    text-align: center !important;
+    font-weight: 700;
+    color: #5C4033; /* 濃い紅茶色 */
+    letter-spacing: 0.1em;
+    margin-bottom: 2rem !important;
+}
+
+/* 商品一覧のカード群を中央に寄せる */
+main.container .row {
+    display: flex !important;
+    justify-content: center !important;
+}
+
+/* カード全体の装飾 */
+main.container .card {
+    border: 1px solid #E6D7C3 !important; /* ミルクティーのような淡いベージュの枠線 */
+    background-color: #FFFDF9 !important; /* 柔らかなクリーム色の背景 */
+    border-radius: 6px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+/* カードにホバーしたときの動き（上品な浮き上がり） */
+main.container .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(92, 64, 51, 0.1) !important;
+}
+
+/* 商品名 */
+main.container .card-title {
+    color: #4A3B32;
+    font-size: 1.05rem;
+    line-height: 1.5;
+}
+
+/* 価格のテキスト（赤から深みのある紅茶色・琥珀色へ） */
+main.container .card-text.text-danger {
+    color: #C04000 !important; /* 上質なダージリンやアールグレイを思わせる琥珀・テラコッタ色 */
+    font-family: "Helvetica Neue", Arial, sans-serif; /* 数字は見やすいゴシック */
+}
+
+/* 「詳細を見る」ボタン（ヘッダーのログイン等のボタンに色味を統一） */
+main.container .btn-primary {
+    background-color: #D2B48C !important; /* ヘッダーのボタンに近いマイルドなティーベージュ */
+    border-color: #D2B48C !important;
+    color: #FFFFFF !important;
+    font-family: "Yu Gothic", "游ゴシック", sans-serif; /* ボタン文字は視認性の高いゴシック */
+    font-weight: bold;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+/* ボタンのホバー時 */
+main.container .btn-primary:hover {
+    background-color: #BC9873 !important; /* 一歩濃いトーンの紅茶色に変色 */
+    border-color: #BC9873 !important;
+}
+
+/* 商品がないときの警告表示の横幅補正 */
+.col-100 {
+    width: 100% !important;
+}
+
+/* ==========================================
+   紅茶テイスト＆ヘッダー同期スタイル
+   ========================================== */
+
+/* 全体の基本設定（フォントを上品な明朝体ベースに） */
+main.container {
+    font-family: "Times New Roman", "Yu Mincho", "游明朝", "MS PMincho", serif;
+    color: #4A3B32; /* 深みのあるアッサムティーのようなダークブラウン */
+}
+
+/* 「商品一覧」の見出し */
+main.container h2 {
+    text-align: center !important;
+    font-weight: 700;
+    color: #5C4033; /* 濃い紅茶色 */
+    letter-spacing: 0.1em;
+    margin-bottom: 2rem !important;
+}
+
+/* 商品一覧のカード群を中央に寄せる */
+main.container .row {
+    display: flex !important;
+    justify-content: center !important;
+}
+
+/* カード全体の装飾 */
+main.container .card {
+    border: 1px solid #E6D7C3 !important; /* ミルクティーのような淡いベージュの枠線 */
+    background-color: #FFFDF9 !important; /* 柔らかなクリーム色の背景 */
+    border-radius: 6px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+/* カードにホバーしたときの動き（上品な浮き上がり） */
+main.container .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(92, 64, 51, 0.1) !important;
+}
+
+/* 商品名 */
+main.container .card-title {
+    color: #4A3B32;
+    font-size: 1.05rem;
+    line-height: 1.5;
+}
+
+/* 価格のテキスト（ヘッダーの紅茶色と調和するリッチな琥珀色へ） */
+main.container .card-text.text-danger {
+    color: #C05C46 !important; /* ★ヘッダーのルイボス色と統一して調和を持たせる */
+    font-family: "Helvetica Neue", Arial, sans-serif; /* 数字は見やすいゴシック */
+    font-weight: bold !important; /* 金額をクッキリ目立たせる */
+}
+
+/* 「詳細を見る」ボタン（ヘッダーのボタンと完全に色味・文字の太さを同期） */
+main.container .btn-primary {
+    background-color: #C05C46 !important; /* ★ヘッダーと同じ紅茶色（ルイボス・テラコッタ） */
+    border: none !important;              /* 枠線なしでスッキリ */
+    color: #FFFFFF !important;
+    font-family: "Yu Gothic", "游ゴシック", sans-serif; /* ボタン文字は視認性の高いゴシック */
+    font-weight: 800 !important;          /* ★文字の太さを最大化して抜群に見やすく */
+    letter-spacing: 0.05em !important;    /* 文字間隔を広げて可読性アップ */
+    padding: 8px 18px !important;          /* ★ヘッダーと同じゆとりある押しやすいサイズ */
+    border-radius: 4px;
+    transition: all 0.3s ease !important;
+}
+
+/* ボタンのホバー時 */
+main.container .btn-primary:hover {
+    background-color: #D47A55 !important; /* ★ホバー時はヘッダーと同じ少し明るいアプリコット色へ */
+    opacity: 0.9 !important;              /* ほんのり透明にしてクリック感を強調 */
+}
+
+/* 商品がないときの警告表示の横幅補正 */
+.col-100 {
+    width: 100% !important;
+}
+
+/* ==========================================
+   修正：商品一覧の上のメインビジュアル＆テキスト
+   ========================================== */
+
+/* 画像を絶対に切らずに、全体を綺麗に表示する */
+main.container::before {
+    content: "";
+    display: block;
+    width: 100%;
+    /* 💡 高さを固定ではなく「自動（横幅に応じる）」にし、最大高さを設定します */
+    height: auto;
+    aspect-ratio: 1200 / 450; /* 💡 画像の縦横比に合わせて調整します（仮で設定） */
+    max-height: 450px; 
+    
+    background-image: url('../img/Gemini_Generated_Image_dgmlm1dgmlm1dgml-Photoroom.png');
+    /* 💡 contain に変更することで、枠の中に画像が100%綺麗に収まります */
+    background-size: contain; 
+    background-repeat: no-repeat;
+    background-position: center;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+}
+
+/* 画像の下に入れる紹介テキストの修正（\A で確実に改行を適用） */
+main.container h2::before {
+    content: "厳選された茶葉が織りなす、至福のひとときをお届けします。\A Aromas and flavors tailored just for your relaxation.";
+    display: block;
+    white-space: pre-line; /* \A による改行を有効化 */
+    text-align: center;
+    font-size: 1.1rem;
+    line-height: 2;
+    color: #7A6353;
+    font-family: "Times New Roman", "游明朝", serif;
+    font-weight: normal;
+    letter-spacing: 0.05em;
+    margin-bottom: 4rem;
+}

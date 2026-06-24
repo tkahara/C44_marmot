@@ -47,6 +47,7 @@
     <meta charset="UTF-8">
     <title>ご注文完了</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/complete.css">
 </head>
 <body class="bg-light">
 

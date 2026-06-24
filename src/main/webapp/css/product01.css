@@ -1,0 +1,140 @@
+/* === 全体・共通設定 === */
+html {
+	background-color: #fcfaf6;
+	margin: 0;
+	padding: 0;
+}
+body {
+	font-family: "游明朝", YuMincho, "ヒラギノ明朝 ProN", serif;
+	color: #2c1d11;
+	margin: 0;
+	padding: 0;
+}
+
+/* === 商品カード（Grid） === */
+.product-card {
+	background-color: #ffffff;
+	max-width: 800px;
+	margin: 60px auto;
+	padding: 40px;
+	border: 1px solid #eaddca;
+	border-radius: 12px;
+	box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+	
+	display: grid;
+	grid-template-columns: 5fr 5fr;
+	grid-template-rows: auto auto 1fr auto;
+	gap: 10px 20px;
+}
+
+/* 左側：画像 */
+.product-img {
+	grid-column: 1;
+	grid-row: 1 / 5;
+	width: 100%;
+	height: 100%;
+	max-height: 380px;
+	object-fit: cover;
+	border-radius: 8px;
+	margin: 0;
+}
+
+/* 右側：商品名（少し深みをもたせてより上品に） */
+.product-title {
+	grid-column: 2;
+	grid-row: 1;
+	font-size: 23px;
+	line-height: 1.4;
+	color: #B96D2D; /* ★「アンバー・ハニー」に変え、文字を読みやすく洗練された印象に */
+	font-weight: 700;
+	margin: 0;
+	text-align: left;
+}
+
+/* 右側：価格（金額が一番ハッキリ目立つように） */
+.product-price {
+	grid-column: 2;
+	grid-row: 2;
+	font-size: 26px;
+	color: #C05C46; /* ★ヘッダーのボタンと同じ紅茶色にして視線を引きつける */
+	margin: 0;
+	font-weight: 900; /* ★数字を極太にして、いくらなのかをパッと見やすく */
+	text-align: left;
+}
+
+/* 右側：商品説明 */
+.product-desc {
+	grid-column: 2;
+	grid-row: 3;
+	font-size: 15px;
+	line-height: 2.2;
+	color: #554335;
+	margin: 0;
+	text-align: left;
+	align-self: start;
+	white-space: pre-line;
+}
+
+/* 右側：カートフォーム一式 */
+.cart-form {
+	grid-column: 2;
+	grid-row: 4;
+	display: flex;
+	gap: 15px;
+	align-items: flex-end;
+}
+
+/* 数量選択エリア */
+.quantity-area {
+	display: flex;
+	flex-direction: column;
+	gap: 5px;
+	font-size: 12px;
+	color: #554335;
+	font-weight: bold; /* ★「個数」のラベル文字を少し太く */
+}
+
+/* セレクトボックス */
+.quantity-area select {
+	padding: 10px;
+	width: 70px;
+	border: 1px solid #eaddca;
+	border-radius: 4px;
+	background-color: #ffffff;
+	font-size: 16px;
+	color: #2c1d11;
+	font-weight: bold; /* ★選択された数字を少し太くして見やすく */
+	cursor: pointer;
+}
+
+/* === カートボタン（★ヘッダーのルイボス・テラコッタ色、極太文字に同期） === */
+button[type="button"], 
+.cart-form button,
+main.container .btn-danger, 
+main.container button[type="submit"],
+main.container .btn-primary {
+	grid-column: 2;
+	grid-row: 4;
+	flex: 1;
+	padding: 14px;
+	background-color: #C05C46 !important; /* ★ヘッダーと同じ紅茶色（ルイボス・テラコッタ） */
+	border: none !important;              /* 枠線なしでスッキリ */
+	color: #ffffff !important;
+	font-size: 16px;
+	font-weight: 800 !important;          /* ★文字の太さをボールドから極太に強化 */
+	letter-spacing: 2px;
+	border-radius: 4px;
+	cursor: pointer;
+	transition: all 0.3s ease !important;
+	margin: 0;
+}
+
+/* カートボタン：ホバー時（★少し明るいアプリコットティー色） */
+button:hover,
+.cart-form button:hover,
+main.container .btn-danger:hover,
+main.container button[type="submit"]:hover,
+main.container .btn-primary:hover {
+	background-color: #D47A55 !important; /* ★ホバー時は少し明るい色に変更 */
+	opacity: 0.9 !important;              /* ほんのり透明にしてクリック感を演出 */
+}

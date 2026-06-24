@@ -1,0 +1,31 @@
+@charset "UTF-8";
+
+/* 1. フッター全体の背景色と境界線 */
+footer.bg-dark {
+	background-color: #DDBC95 !important;  /* 深みのある紅茶ブラウン */
+	border-top: 3px double #C5A059 !important; /* 高級感のあるゴールド2重線 */
+	font-family: 'Georgia', 'Times New Roman', 'Shippori Mincho', serif;
+}
+
+/* 2. 通常の文字・段落・補足テキストのスタイル統合（太字化・色・文字間隔） */
+footer.text-white,
+footer.text-white p,
+footer .text-muted {
+	color: #F7F4EB !important;         /* ミルクティーアイボリー */
+	font-weight: 600 !important;       /* 文字を中太（セミボールド）にしてクッキリさせる */
+	letter-spacing: 0.06em !important; /* 文字間を広げて、太くしても潰れない上品な並びに */
+}
+
+/* 3. フッター内にリンク（<a>タグ）がある場合の調整 */
+footer a {
+	color: #F7F4EB !important;         /* 文字色をミルクティーアイボリーに統一 */
+	font-weight: 700 !important;       /* リンクは通常文字よりさらに一段太くして目立たせる */
+	text-decoration: none !important;  /* 下線を消してスッキリ */
+	transition: color 0.3s ease !important; /* ホバー時の色変化を滑らかに */
+}
+
+/* 4. フッター内のリンクにマウスを載せた時（ホバー時） */
+footer a:hover {
+	color: #C05C46 !important;         /* ホバーするとヘッダーのボタンと同じ紅茶色に変化 */
+	text-decoration: underline !important; /* ホバー時のみ下線を表示してクリック感を出す */
+}
