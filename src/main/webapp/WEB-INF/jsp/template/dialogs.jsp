@@ -28,9 +28,9 @@ Boolean regSuccess = (Boolean) session.getAttribute("registerSuccess");
 			<form action="LoginServlet" method="post">
 				<div class="modal-body p-4">
 					
-					<%-- 🌟 修正：request ではなく、上で取得した session 由来の loginError を参照 --%>
+					<%-- 🌟 JavaScript から操作できるように id="loginAlertBox" を付与 --%>
 					<% if (loginError != null) { %>
-					<div class="alert alert-danger mb-3 py-2 text-center">
+					<div id="loginAlertBox" class="alert alert-danger mb-3 py-2 text-center">
 						<small class="fw-bold">⚠️ <%= loginError %></small>
 					</div>
 					<% } %>
@@ -85,7 +85,6 @@ Boolean regSuccess = (Boolean) session.getAttribute("registerSuccess");
 	<div class="modal-dialog modal-dialog-centered">
 		<div class="modal-content" style="border-radius: 14px; border: none; box-shadow: 0 10px 30px rgba(74, 51, 37, 0.15); background-color: #FFFFFF;">
 			<div class="modal-body text-center p-5">
-				<%-- register.jsp側の変数は参照できない可能性があるため直接カラーコード or クラスで指定 --%>
 				<div style="font-size: 4rem; color: #C5A059;">✨</div>
 				<h4 class="fw-bold mb-3" style="color: #4A3325;">会員登録が完了しました！</h4>
 				<p class="text-muted small mb-4">マーモット-TEA- へようこそ。<br>特別なティータイムをお楽しみください。</p>
@@ -101,11 +100,26 @@ Boolean regSuccess = (Boolean) session.getAttribute("registerSuccess");
 
 <script>
 	document.addEventListener("DOMContentLoaded", function() {
+		// 🌟 ログインモーダル要素の取得
+		var loginModalEl = document.getElementById('loginModal');
+
 		<%-- 🌟 既存処理：ログインエラーがあれば自動表示してクリーンアップ --%>
 		<% if (loginError != null) { %>
-			new bootstrap.Modal(document.getElementById('loginModal')).show();
+			if (loginModalEl) {
+				new bootstrap.Modal(loginModalEl).show();
+			}
 			<% session.removeAttribute("loginError"); %>
 		<% } %>
+
+		<%-- 🌟【追加】モーダルが閉じられた時、エラー枠を完全に消去する制御 --%>
+		if (loginModalEl) {
+			loginModalEl.addEventListener('hidden.bs.modal', function () {
+				var alertBox = document.getElementById('loginAlertBox');
+				if (alertBox) {
+					alertBox.remove(); // 画面上（DOM）からエラー要素を完全に削除
+				}
+			});
+		}
 
 		<%-- 🌟【追加】登録成功フラグがあれば自動表示してクリーンアップ --%>
 		<% if (regSuccess != null && regSuccess) { %>

@@ -41,7 +41,9 @@ public class RegisterServlet extends HttpServlet {
         String postalCode = (postalCodeRaw != null) ? postalCodeRaw.replaceAll("\\D", "") : "";
         String tel = (telRaw != null) ? telRaw.replaceAll("\\D", "") : "";
         String cardNum = (cardNumRaw != null) ? cardNumRaw.replaceAll("\\D", "") : "";
-        String cardName = (cardNameRaw != null) ? cardNameRaw.trim().toUpperCase() : "";
+        
+        // 🌟 カード名義：前後トリム、英大文字化、および「連続する半角スペース」を1つに間引くクレンジング
+        String cardName = (cardNameRaw != null) ? cardNameRaw.trim().toUpperCase().replaceAll(" +", " ") : "";
         String cardExpiration = (cardExpirationRaw != null) ? cardExpirationRaw.trim() : "";
         
         // 🚨 登録失敗時に「画面の入力状態（ハイフンあり）」をそのまま復元するためのバックアップ用インスタンス
@@ -96,6 +98,11 @@ public class RegisterServlet extends HttpServlet {
             if (!hasCardName || !hasCardNum || !hasCardExpiry) {
                 errorMsg.append("・クレジットカード情報を登録する場合は、名義人・番号・有効期限をすべて入力してください。<br>");
             } else {
+                // 🌟 カード名義：スペースだけの不正入力、または国際規格の文字数（2〜26文字）から外れる場合は弾く
+                if (cardName.replace(" ", "").isEmpty() || cardName.length() < 2 || cardName.length() > 26) {
+                    errorMsg.append("・カード名義は半角英字2文字以上26文字以内で正しく入力してください。<br>");
+                }
+                
                 // カード番号桁数チェック
                 if (cardNum.length() != 16) {
                     errorMsg.append("・カード番号は16桁の数字で入力してください。<br>");
@@ -108,7 +115,7 @@ public class RegisterServlet extends HttpServlet {
                     try {
                         int month = Integer.parseInt(cardExpiration.split("/")[0]);
                         if (month < 1 || month > 12) {
-                            errorMsg.append("・有効期限の「月']は01〜12の間で指定してください。<br>");
+                            errorMsg.append("・有効期限の「月」は01〜12の間で指定してください。<br>");
                         }
                     } catch (Exception e) {
                         errorMsg.append("・有効期限の形式が不正です。<br>");

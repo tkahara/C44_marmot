@@ -208,11 +208,16 @@ document.addEventListener("DOMContentLoaded", function() {
         }
         
         if (fieldType === "card_name") {
-            // 全角英字 ➔ 半角英字
+            // 1. 全角英字 ➔ 半角英字に変換
             value = value.replace(/[ａ-ｚＡ-Ｚ]/g, function(s) {
                 return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
             });
-            inputField.value = value.toUpperCase(); // 小文字は自動で大文字へ
+            // 2. 半角英字と半角スペース「以外」を完全に排除（数字や記号をシャットアウト）
+            value = value.replace(/[^a-zA-Z ]/g, '');
+            // 3. 連続する半角スペースを1つに間引く
+            value = value.replace(/ +/g, ' ');
+            // 4. 小文字は自動で大文字へ
+            inputField.value = value.toUpperCase();
         }
     });
 
@@ -277,6 +282,13 @@ document.addEventListener("DOMContentLoaded", function() {
             if (cleanVal.length !== 16) {
                 event.preventDefault();
                 alert("カード番号は16桁の数字で正しく入力してください。");
+            }
+        }
+        // 🌟 カード名義の最終セキュリティガードを追加（空欄での登録削除は通す）
+        else if (fieldType === "card_name" && rawVal !== "") {
+            if (rawVal.replace(/ /g, "") === "" || rawVal.length < 2 || rawVal.length > 26) {
+                event.preventDefault();
+                alert("カード名義は半角英字2文字以上26文字以内で正しく入力してください。");
             }
         }
         else if (fieldType === "card_expiration" && rawVal !== "") {

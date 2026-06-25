@@ -236,8 +236,7 @@ body.tea-theme {
 						class="badge badge-tea-req">必須</span></label> <input type="text"
 						class="form-control p-postal-code" id="zipCode" name="postalCode"
 						value="<%=postalCode%>" placeholder="123-4567（ハイフンあり・なし可）"
-						maxlength="10" required> <!-- 🛠️ 自動ハイフン挿入時の上限詰まり防止のため maxlength を 10 に拡張 -->
-					<div class="form-text small text-muted">※ハイフンは自動で補完されます。</div>
+						maxlength="10" required> <div class="form-text small text-muted">※ハイフンは自動で補完されます。</div>
 				</div>
 
 				<div class="mb-3">
@@ -253,8 +252,7 @@ body.tea-theme {
 					<label for="tel" class="form-label fw-bold">電話番号 <span
 						class="badge badge-tea-req">必須</span></label> <input type="tel"
 						class="form-control" id="tel" name="tel" value="<%=tel%>"
-						placeholder="090-1234-5678（ハイフンあり・なし可）" maxlength="15" required> <!-- 🛠️ 自動ハイフン挿入時の上限詰まり防止のため maxlength を 15 に拡張 -->
-					<div class="form-text small text-muted">※ハイフンは自動で補完されます。</div>
+						placeholder="090-1234-5678（ハイフンあり・なし可）" maxlength="15" required> <div class="form-text small text-muted">※ハイフンは自動で補完されます。</div>
 				</div>
 
 				<div class="section-divider">
@@ -363,13 +361,19 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    // 💳 カード名義のリアルタイム全角英数半角大文字変換
+    // 💳 カード名義のリアルタイム全角英数半角大文字変換＆記号・数字の完全シャットアウト
     if (cardNameInput) {
         cardNameInput.addEventListener("input", function() {
             let value = this.value;
+            // 1. 全角英字 ➔ 半角英字に変換
             value = value.replace(/[ａ-ｚＡ-Ｚ]/g, function(s) {
                 return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
             });
+            // 2. 半角英字と半角スペース「以外」を完全に排除（数字や記号を打ち込めなくする）
+            value = value.replace(/[^a-zA-Z ]/g, '');
+            // 3. 連続する半角スペースを1つに間引く
+            value = value.replace(/ +/g, ' ');
+            // 4. 小文字をすべて大文字にする
             this.value = value.toUpperCase();
         });
     }
@@ -448,6 +452,11 @@ document.addEventListener("DOMContentLoaded", function() {
                 isCardValid = false;
                 cardErrorMsg = "クレジットカード情報を登録する場合は、名義人・カード番号・有効期限をすべて入力してください。";
             } 
+            // 🌟 サーバー側に追加した「スペースだけの入力を弾く」「文字数（2〜26文字）」をフロントでもガード
+            else if (cName.replace(/ /g, "") === "" || cName.length < 2 || cName.length > 26) {
+                isCardValid = false;
+                cardErrorMsg = "カード名義は半角英字2文字以上26文字以内で正しく入力してください。";
+            }
             else if (cNum.length !== 16) {
                 isCardValid = false;
                 cardErrorMsg = "カード番号は16桁の数字で正しく入力してください。";

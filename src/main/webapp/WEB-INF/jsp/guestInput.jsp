@@ -1,5 +1,17 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 
+<%
+// ⭕ 型とキャスト、生成部分をすべてフルパスで記述
+java.text.NumberFormat nf = (java.text.NumberFormat) pageContext.getAttribute("nf");
+
+// もしnull（取得失敗）なら、その場で生成してセットする
+if (nf == null) {
+	nf = java.text.NumberFormat.getNumberInstance();
+	pageContext.setAttribute("nf", nf);
+}
+%>
+
+
 <%@ include file="template/header.jsp" %>
 <%@ include file="template/dialogs.jsp" %>
 <%@ include file="template/cartSideBar.jsp" %>

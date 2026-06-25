@@ -34,7 +34,6 @@ public class EditAccountServlet extends HttpServlet {
             return;
         }
 
-        // 🌟 JSP側の条件分岐（field.equals("...")）と完全に名称を統一する
         if (field != null) {
             field = field.toLowerCase().trim();
             if (field.equals("pass")) field = "password";
@@ -85,7 +84,6 @@ public class EditAccountServlet extends HttpServlet {
                 currentValue = loginUser.getCardExpiration();
                 break;
             default:
-                // 想定外のフィールドはマイページへ弾く
                 response.sendRedirect(request.getContextPath() + "/MyPageServlet");
                 return;
         }
@@ -101,7 +99,7 @@ public class EditAccountServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
         String field = request.getParameter("field");
-        String newValueRaw = request.getParameter("newValue"); // 🌟 画面から入力された生の値を一旦キープ
+        String newValueRaw = request.getParameter("newValue"); 
 
         HttpSession session = request.getSession();
         User loginUser = (User) session.getAttribute("loginUser");
@@ -123,7 +121,7 @@ public class EditAccountServlet extends HttpServlet {
         // 🛑 バリデーション（入力チェック）処理
         StringBuilder errorMsg = new StringBuilder();
         String fieldLabel = ""; 
-        String newValue = newValueRaw; // 内部処理・クレンジング用の変数
+        String newValue = newValueRaw; 
 
         switch (field) {
             case "password":
@@ -184,7 +182,13 @@ public class EditAccountServlet extends HttpServlet {
             case "card_name":
                 fieldLabel = "カード名義";
                 if (newValue != null && !newValue.trim().isEmpty()) {
-                    newValue = newValue.trim().toUpperCase(); 
+                    // 🌟 前後トリム、英大文字化、および「連続する半角スペース」を1つに間引くクレンジング
+                    newValue = newValue.trim().toUpperCase().replaceAll(" +", " "); 
+                    
+                    // 🌟 スペースだけの不正入力、または国際規格の文字数（2〜26文字）から外れる場合は弾く
+                    if (newValue.replace(" ", "").isEmpty() || newValue.length() < 2 || newValue.length() > 26) {
+                        errorMsg.append("・カード名義は半角英字2文字以上26文字以内で正しく入力してください。<br>");
+                    }
                 }
                 break;
 
@@ -208,12 +212,10 @@ public class EditAccountServlet extends HttpServlet {
                 break;
         }
 
-        // ⚡ エラーメッセージが存在する場合、DB更新をせずに編集画面に戻す
         if (errorMsg.length() > 0) {
             request.setAttribute("errorMsg", errorMsg.toString());
             request.setAttribute("field", field);
             request.setAttribute("fieldLabel", fieldLabel);
-            // 🌟 ユーザーの入力感を損なわないよう、ハイフン等が残った「生の入力値」を復元用に戻す
             request.setAttribute("currentValue", newValueRaw); 
 
             RequestDispatcher dispatcher = request.getRequestDispatcher("WEB-INF/jsp/editAccount.jsp");
@@ -229,7 +231,6 @@ public class EditAccountServlet extends HttpServlet {
         try (Connection conn = DriverManager.getConnection(JDBC_URL, DB_USER, DB_PASS);
              PreparedStatement pStmt = conn.prepareStatement(sql)) {
 
-            // 空白、または中身が空文字列の場合はDBにNULLをセットする（カード情報の削除対応）
             if (newValue == null || newValue.trim().isEmpty()) {
                 if (field.equals("card_number") || field.equals("card_name") || field.equals("card_expiration")) {
                     pStmt.setNull(1, java.sql.Types.VARCHAR);
