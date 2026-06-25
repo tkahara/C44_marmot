@@ -34,17 +34,18 @@ public class EditAccountServlet extends HttpServlet {
             return;
         }
 
-        String fieldLabel = "";
-        String currentValue = "";
-
+        // 🌟 JSP側の条件分岐（field.equals("...")）と完全に名称を統一する
         if (field != null) {
-            field = field.toLowerCase();
+            field = field.toLowerCase().trim();
             if (field.equals("pass")) field = "password";
             if (field.equals("name")) field = "user_name";
             if (field.equals("mail")) field = "email";
             if (field.equals("tel")) field = "phone_number";
             if (field.equals("card_num")) field = "card_number";
         }
+
+        String fieldLabel = "";
+        String currentValue = "";
 
         switch (field) {
             case "password":
@@ -83,6 +84,10 @@ public class EditAccountServlet extends HttpServlet {
                 fieldLabel = "カード有効期限";
                 currentValue = loginUser.getCardExpiration();
                 break;
+            default:
+                // 想定外のフィールドはマイページへ弾く
+                response.sendRedirect(request.getContextPath() + "/MyPageServlet");
+                return;
         }
 
         request.setAttribute("field", field);
@@ -96,7 +101,7 @@ public class EditAccountServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
         String field = request.getParameter("field");
-        String newValue = request.getParameter("newValue");
+        String newValueRaw = request.getParameter("newValue"); // 🌟 画面から入力された生の値を一旦キープ
 
         HttpSession session = request.getSession();
         User loginUser = (User) session.getAttribute("loginUser");
@@ -107,7 +112,7 @@ public class EditAccountServlet extends HttpServlet {
         }
 
         if (field != null) {
-            field = field.toLowerCase();
+            field = field.toLowerCase().trim();
             if (field.equals("pass")) field = "password";
             if (field.equals("name")) field = "user_name";
             if (field.equals("mail")) field = "email";
@@ -115,9 +120,10 @@ public class EditAccountServlet extends HttpServlet {
             if (field.equals("card_num")) field = "card_number";
         }
 
-        // 🛑 【追加】バリデーション（入力チェック）処理
+        // 🛑 バリデーション（入力チェック）処理
         StringBuilder errorMsg = new StringBuilder();
-        String fieldLabel = ""; // エラーで戻すとき用の日本語ラベル
+        String fieldLabel = ""; 
+        String newValue = newValueRaw; // 内部処理・クレンジング用の変数
 
         switch (field) {
             case "password":
@@ -144,6 +150,7 @@ public class EditAccountServlet extends HttpServlet {
 
             case "postal_code":
                 fieldLabel = "郵便番号";
+                if (newValue != null) { newValue = newValue.replaceAll("\\D", ""); } 
                 if (newValue == null || newValue.length() != 7) {
                     errorMsg.append("・郵便番号は7桁の数字で入力してください。<br>");
                 }
@@ -158,6 +165,7 @@ public class EditAccountServlet extends HttpServlet {
 
             case "phone_number":
                 fieldLabel = "電話番号";
+                if (newValue != null) { newValue = newValue.replaceAll("\\D", ""); } 
                 if (newValue == null || newValue.length() < 10 || newValue.length() > 11) {
                     errorMsg.append("・電話番号は10桁または11桁の数字で入力してください。<br>");
                 }
@@ -165,12 +173,38 @@ public class EditAccountServlet extends HttpServlet {
                 
             case "card_number":
                 fieldLabel = "クレジットカード番号";
+                if (newValue != null && !newValue.trim().isEmpty()) {
+                    newValue = newValue.replaceAll("\\D", ""); 
+                    if (newValue.length() != 16) {
+                        errorMsg.append("・カード番号は16桁の数字で入力してください。<br>");
+                    }
+                }
                 break;
+
             case "card_name":
                 fieldLabel = "カード名義";
+                if (newValue != null && !newValue.trim().isEmpty()) {
+                    newValue = newValue.trim().toUpperCase(); 
+                }
                 break;
+
             case "card_expiration":
                 fieldLabel = "カード有効期限";
+                if (newValue != null && !newValue.trim().isEmpty()) {
+                    newValue = newValue.trim();
+                    if (!newValue.matches("^\\d{2}/\\d{2}$")) {
+                        errorMsg.append("・有効期限は「月月/年年 (例: 12/29)」の形式で入力してください。<br>");
+                    } else {
+                        try {
+                            int month = Integer.parseInt(newValue.split("/")[0]);
+                            if (month < 1 || month > 12) {
+                                errorMsg.append("・有効期限の「月」は01〜12の間で指定してください。<br>");
+                            }
+                        } catch (Exception e) {
+                            errorMsg.append("・有効期限の形式が不正です。<br>");
+                        }
+                    }
+                }
                 break;
         }
 
@@ -179,11 +213,12 @@ public class EditAccountServlet extends HttpServlet {
             request.setAttribute("errorMsg", errorMsg.toString());
             request.setAttribute("field", field);
             request.setAttribute("fieldLabel", fieldLabel);
-            request.setAttribute("currentValue", newValue); // 入力しようとした値を残す
+            // 🌟 ユーザーの入力感を損なわないよう、ハイフン等が残った「生の入力値」を復元用に戻す
+            request.setAttribute("currentValue", newValueRaw); 
 
             RequestDispatcher dispatcher = request.getRequestDispatcher("WEB-INF/jsp/editAccount.jsp");
             dispatcher.forward(request, response);
-            return; // 処理を終了し、下のDB更新へ行かせない
+            return; 
         }
 
         // ----------------- ここから下のDB更新処理は正常時のみ実行されます -----------------
@@ -194,9 +229,11 @@ public class EditAccountServlet extends HttpServlet {
         try (Connection conn = DriverManager.getConnection(JDBC_URL, DB_USER, DB_PASS);
              PreparedStatement pStmt = conn.prepareStatement(sql)) {
 
-            if (newValue == null || newValue.isEmpty()) {
+            // 空白、または中身が空文字列の場合はDBにNULLをセットする（カード情報の削除対応）
+            if (newValue == null || newValue.trim().isEmpty()) {
                 if (field.equals("card_number") || field.equals("card_name") || field.equals("card_expiration")) {
                     pStmt.setNull(1, java.sql.Types.VARCHAR);
+                    newValue = null; 
                 } else {
                     pStmt.setString(1, newValue);
                 }

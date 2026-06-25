@@ -168,7 +168,7 @@ body.tea-theme {
 				<p class="text-muted small mt-2">当サイトの会員サービスをご利用いただくため、必要事項のご入力をお願いいたします。</p>
 			</div>
 
-			<%-- ❌ 登録エラーメッセージ表示（DB重複時など） --%>
+			<%-- 登録エラーメッセージ表示 --%>
 			<%
 			if (msg != null && !msg.isEmpty()) {
 			%>
@@ -236,7 +236,7 @@ body.tea-theme {
 						class="badge badge-tea-req">必須</span></label> <input type="text"
 						class="form-control p-postal-code" id="zipCode" name="postalCode"
 						value="<%=postalCode%>" placeholder="123-4567（ハイフンあり・なし可）"
-						maxlength="8" pattern="\d{3}-?\d{4}" required>
+						maxlength="10" required> <!-- 🛠️ 自動ハイフン挿入時の上限詰まり防止のため maxlength を 10 に拡張 -->
 					<div class="form-text small text-muted">※ハイフンは自動で補完されます。</div>
 				</div>
 
@@ -253,8 +253,8 @@ body.tea-theme {
 					<label for="tel" class="form-label fw-bold">電話番号 <span
 						class="badge badge-tea-req">必須</span></label> <input type="tel"
 						class="form-control" id="tel" name="tel" value="<%=tel%>"
-						placeholder="090-1234-5678（ハイフンあり・なし可）" maxlength="13"
-						pattern="\d{2,4}-?\d{2,4}-?\d{4}" required>
+						placeholder="090-1234-5678（ハイフンあり・なし可）" maxlength="15" required> <!-- 🛠️ 自動ハイフン挿入時の上限詰まり防止のため maxlength を 15 に拡張 -->
+					<div class="form-text small text-muted">※ハイフンは自動で補完されます。</div>
 				</div>
 
 				<div class="section-divider">
@@ -267,14 +267,16 @@ body.tea-theme {
 					<div class="mb-3">
 						<label for="guestCardName" class="form-label small fw-bold">カード名義人（半角大文字）</label>
 						<input type="text" class="form-control" id="guestCardName"
-							name="cardName" value="<%=cardName%>" placeholder="TARO KOUCHA">
+							name="cardName" value="<%=cardName%>" placeholder="TARO KOUCHA" style="text-transform: uppercase;">
+						<div class="form-text small text-muted mt-1">※半角英大文字。</div>
 					</div>
 
 					<div class="mb-3">
 						<label for="guestCardNumber" class="form-label small fw-bold">カード番号（半角数字16桁）</label>
 						<input type="text" class="form-control" id="guestCardNumber"
 							name="cardNum" value="<%=cardNum%>"
-							placeholder="1234567812345678" maxlength="16" pattern="\d{16}">
+							placeholder="1234567812345678" maxlength="16" inputmode="numeric">
+						<div class="form-text small text-muted mt-1">※半角数字16桁。ハイフンは入力できません。</div>
 					</div>
 
 					<div class="row">
@@ -283,6 +285,7 @@ body.tea-theme {
 								(MM/YY)</label> <input type="text" class="form-control"
 								id="guestCardExpiry" name="cardExpiration"
 								value="<%=cardExpiration%>" placeholder="12/29" maxlength="5">
+							<div class="form-text small text-muted mt-1">※「月月/年年」の形式。</div>
 						</div>
 					</div>
 				</div>
@@ -300,7 +303,6 @@ body.tea-theme {
 	</div>
 
 	<script>
-// 各種バリデーション＆入力制御処理
 document.addEventListener("DOMContentLoaded", function() {
     const emailInput = document.getElementById("email");
     const emailConfirmInput = document.getElementById("emailConfirm");
@@ -308,29 +310,37 @@ document.addEventListener("DOMContentLoaded", function() {
     const emailConfirmError = document.getElementById("emailConfirmError");
     const zipInput = document.getElementById("zipCode"); 
     const telInput = document.getElementById("tel"); 
+    
+    const cardNameInput = document.getElementById("guestCardName");
+    const cardNumInput = document.getElementById("guestCardNumber");
+    const cardExpiryInput = document.getElementById("guestCardExpiry");
+    
     const form = document.querySelector("form");
 
-    // 郵便番号の自動整形
+    // 🌟 リアルタイム入力制御（数字とハイフンのみを許可して全角を半角にクレンジング）
+    [zipInput, telInput].forEach(input => {
+        if (input) {
+            input.addEventListener("input", function() {
+                let value = this.value;
+                value = value.replace(/[０-９]/g, function(s) {
+                    return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
+                });
+                this.value = value.replace(/[^0-9-]/g, ''); // 数字とハイフン以外を除外
+            });
+        }
+    });
+
+    // 📍 郵便番号のフォーカスアウト（Blur）時自動ハイフン挿入
     zipInput.addEventListener("blur", function() {
-        let val = this.value;
-        val = val.replace(/[０-９]/g, function(s) {
-            return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
-        });
-        val = val.replace(/\D/g, ""); 
-        
+        let val = this.value.replace(/\D/g, ""); // 一旦数字だけにする
         if (val.length === 7) {
             this.value = val.slice(0, 3) + "-" + val.slice(3);
         }
     });
 
-    // 電話番号の自動整形
+    // 📍 電話番号のフォーカスアウト（Blur）時自動ハイフン挿入
     telInput.addEventListener("blur", function() {
-        let val = this.value;
-        val = val.replace(/[０-９]/g, function(s) {
-            return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
-        });
-        val = val.replace(/\D/g, ""); 
-        
+        let val = this.value.replace(/\D/g, ""); // 一旦数字だけにする
         if (val.length === 11) {
             this.value = val.slice(0, 3) + "-" + val.slice(3, 7) + "-" + val.slice(7);
         } else if (val.length === 10) {
@@ -341,6 +351,41 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         }
     });
+
+    // 💳 クレジットカード番号（純粋な16桁の数字のみ。ハイフンなしにeditAccountと統一）
+    if (cardNumInput) {
+        cardNumInput.addEventListener("input", function() {
+            let value = this.value;
+            value = value.replace(/[０-９]/g, function(s) {
+                return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
+            });
+            this.value = value.replace(/[^0-9]/g, '');
+        });
+    }
+
+    // 💳 カード名義のリアルタイム全角英数半角大文字変換
+    if (cardNameInput) {
+        cardNameInput.addEventListener("input", function() {
+            let value = this.value;
+            value = value.replace(/[ａ-ｚＡ-Ｚ]/g, function(s) {
+                return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
+            });
+            this.value = value.toUpperCase();
+        });
+    }
+
+    // 💳 クレジットカード有効期限のフォーカスアウト（Blur）時自動スラッシュ補完
+    if (cardExpiryInput) {
+        cardExpiryInput.addEventListener("blur", function() {
+            let value = this.value.replace(/[０-９]/g, function(s) {
+                return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
+            });
+            let digits = value.replace(/\D/g, "");
+            if (digits.length === 4) {
+                this.value = digits.slice(0, 2) + "/" + digits.slice(2);
+            }
+        });
+    }
 
     // メールアドレスの形式チェック
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -378,18 +423,57 @@ document.addEventListener("DOMContentLoaded", function() {
     emailInput.addEventListener("blur", () => { validateEmail(); validateConfirmEmail(); });
     emailConfirmInput.addEventListener("blur", validateConfirmEmail);
 
-    // 送信時の最終防衛ライン
+    // 🌟 送信前の最終フォーマットバリデーション
     form.addEventListener("submit", function(event) {
         const isEmailValid = validateEmail();
         const isConfirmValid = validateConfirmEmail();
         
+        // ハイフンを除外した純粋な桁数でチェックを行う（editAccount.jspとサーバー側のロジックに同期）
         const zipValue = zipInput.value.replace(/\D/g, ""); 
         const isZipValid = zipValue.length === 7;
+        
+        const telValue = telInput.value.replace(/\D/g, "");
+        const isTelValid = telValue.length >= 10 && telValue.length <= 11;
 
-        if (!isEmailValid || !isConfirmValid || !isZipValid) {
-            event.preventDefault(); 
+        let isCardValid = true;
+        let cardErrorMsg = "";
+
+        const cName = cardNameInput.value.trim();
+        const cNum = cardNumInput.value.replace(/\D/g, ""); 
+        const cExpiry = cardExpiryInput.value.trim();
+
+        // クレジットカード情報の連動型チェック
+        if (cName !== "" || cardNumInput.value !== "" || cExpiry !== "") {
+            if (cName === "" || cardNumInput.value === "" || cExpiry === "") {
+                isCardValid = false;
+                cardErrorMsg = "クレジットカード情報を登録する場合は、名義人・カード番号・有効期限をすべて入力してください。";
+            } 
+            else if (cNum.length !== 16) {
+                isCardValid = false;
+                cardErrorMsg = "カード番号は16桁の数字で正しく入力してください。";
+            } 
+            else if (!/^\d{2}\/\d{2}$/.test(cExpiry)) {
+                isCardValid = false;
+                cardErrorMsg = "有効期限は「月月/年年 (例: 12/29)」の形式で入力してください。";
+            } else {
+                const month = parseInt(cExpiry.split("/")[0], 10);
+                if (month < 1 || month > 12) {
+                    isCardValid = false;
+                    cardErrorMsg = "有効期限の「月」は01〜12の間で指定してください。";
+                }
+            }
+        }
+
+        // 不備があれば送信をブロック
+        if (!isEmailValid || !isConfirmValid || !isZipValid || !isTelValid || !isCardValid) {
+            event.preventDefault();
+            
             if (!isZipValid) {
-                alert("郵便番号は7桁の数字で入力してください。");
+                alert("郵便番号は7桁の数字（ハイフン除く）で正しく入力してください。");
+            } else if (!isTelValid) {
+                alert("電話番号は10桁または11桁の数字（ハイフン除く）で入力してください。");
+            } else if (!isCardValid) {
+                alert(cardErrorMsg);
             } else {
                 alert("メールアドレスの入力内容に不備があります。修正してください。");
             }
