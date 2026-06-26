@@ -10,8 +10,9 @@ import model.Products;
 
 public class OrderDAO {
     
-    private final String JDBC_URL = "jdbc:mysql://localhost/keg_db?characterEncoding=UTF-8&useSSL=false";
-    private final String DB_USER = "keg_user";
+    //private final String JDBC_URL = "jdbc:mysql://localhost/keg_db?characterEncoding=UTF-8&useSSL=false";
+	private final String JDBC_URL = "jdbc:mysql://localhost/keg_db";
+	private final String DB_USER = "keg_user";
     private final String DB_PASS = "keg_pass";
 
     /**

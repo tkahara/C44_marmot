@@ -11,7 +11,8 @@ import model.Products;
 
 public class ProductsDAO {
     // ※接続情報はお使いの環境（パスワードなど）に合わせて微調整してください
-	private final String JDBC_URL = "jdbc:mysql://localhost/keg_db?characterEncoding=UTF-8&useSSL=false";
+	//private final String JDBC_URL = "jdbc:mysql://localhost/keg_db?characterEncoding=UTF-8&useSSL=false";
+	private final String JDBC_URL = "jdbc:mysql://localhost/keg_db";
 	private final String DB_USER = "keg_user";
 	private final String DB_PASS = "keg_pass";
     

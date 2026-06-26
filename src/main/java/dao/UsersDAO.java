@@ -13,8 +13,9 @@ import model.User;
 // ❌ import servlet.Login;  <-- クラス名衝突の原因になるため削除しました
 
 public class UsersDAO {
-    private final String JDBC_URL = "jdbc:mysql://localhost/keg_db?useSSL=false&allowPublicKeyRetrieval=true";
-    private final String DB_USER = "keg_user";
+    //private final String JDBC_URL = "jdbc:mysql://localhost/keg_db?useSSL=false&allowPublicKeyRetrieval=true";
+	private final String JDBC_URL = "jdbc:mysql://localhost/keg_db";
+	private final String DB_USER = "keg_user";
     private final String DB_PASS = "keg_pass";
 
     // 1. ログイン処理（引数を model.Login に明示的に変更）
