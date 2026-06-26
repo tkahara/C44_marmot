@@ -24,10 +24,10 @@ String zip = (String) session.getAttribute("orderZip");
 String address = (String) session.getAttribute("orderAddress");
 String tel = (String) session.getAttribute("orderTel");
 
-// 現在選択されている決済方法（セッションにあればそれを利用）
-String currentPayment = (String) session.getAttribute("guestPayment");
+// 🌟【修正】サーブレットがセットした名前 "payment" で正しくセッションから取得する
+String currentPayment = (String) session.getAttribute("payment");
 if (currentPayment == null) {
-	// 🌟【修正】ログインしていてカードがあれば「credit」、なければ「bank」をデフォルトにする
+	// 🌟ログインしていてカードがあれば「credit」、なければ「bank」をデフォルトにする
 	if (loginUser != null && loginUser.getCardNumber() != null && !loginUser.getCardNumber().isEmpty()) {
 		currentPayment = "credit";
 	} else {
@@ -107,10 +107,12 @@ int confirmTotalAmount = 0;
 
 		<form action="OrderCompleteServlet" method="POST">
 			<div class="card shadow-sm p-4 bg-white mb-4">
-				<h5 class="fw-bold border-bottom pb-2 mb-3">💳 決済方法の選択</h5>
+				<h5 class="fw-bold border-bottom pb-2 mb-3">💳 決済方法の確認・変更</h5>
+				<p class="text-muted small">前の画面で選択した決済方法が選択されています。必要に応じて変更も可能です。</p>
+				
 				<div class="row">
 					<div class="col-md-6">
-						<%-- 🌟【修正】ログインユーザーかつカード番号がDBにある場合のみラジオボタンを表示 --%>
+						<%-- 🌟 ログインユーザーで、かつDBにカード番号がある場合 --%>
 						<%
 						if (loginUser != null && loginUser.getCardNumber() != null && !loginUser.getCardNumber().isEmpty()) {
 						%>
@@ -119,6 +121,19 @@ int confirmTotalAmount = 0;
 								id="pay1" value="credit"
 								<%="credit".equals(currentPayment) ? "checked" : ""%>> <label
 								class="form-check-label" for="pay1"> クレジットカード (末尾: <%=loginUser.getCardNumber().substring(loginUser.getCardNumber().length() - 4)%>)
+							</label>
+						</div>
+						<%
+						} else if ("credit".equals(currentPayment)) { 
+							// 🌟【新規対応】ゲストが前の画面でクレジットカードを入力して進んできた場合
+							String guestCardNum = (String) session.getAttribute("guestCardNumber");
+							String maskedNum = (guestCardNum != null && guestCardNum.length() == 16) 
+								? guestCardNum.substring(12) : "****";
+						%>
+						<div class="form-check mb-2">
+							<input class="form-check-input" type="radio" name="payment"
+								id="pay1_guest" value="credit" checked> <label
+								class="form-check-label" for="pay1_guest"> クレジットカード (末尾: <%=maskedNum%>)
 							</label>
 						</div>
 						<%

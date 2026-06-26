@@ -191,8 +191,16 @@ body.tea-theme {
 						</tr>
 						<tr>
 							<td class="fw-bold text-muted small">郵便番号</td>
-							<td><c:if test="${not empty loginUser.postalCode}">〒</c:if>
-								<c:out value="${loginUser.postalCode}" /></td>
+							<td><c:choose>
+									<c:when
+										test="${not empty loginUser.postalCode and loginUser.postalCode.length() == 7}">
+										〒<c:out value="${loginUser.postalCode.substring(0, 3)}" />-<c:out
+											value="${loginUser.postalCode.substring(3)}" />
+									</c:when>
+									<c:otherwise>
+										<c:out value="${loginUser.postalCode}" />
+									</c:otherwise>
+								</c:choose></td>
 							<td class="text-center"><a
 								href="EditAccountServlet?field=postal_code"
 								class="btn btn-sm btn-tea-outline px-3">編集</a></td>
@@ -213,7 +221,40 @@ body.tea-theme {
 						</tr>
 						<tr>
 							<td class="fw-bold text-muted small">電話番号</td>
-							<td><c:out value="${loginUser.phoneNumber}" /></td>
+							<td><c:choose>
+									<%-- 📱 11桁の携帯電話等の場合 (例: 090-1234-5678) --%>
+									<c:when
+										test="${not empty loginUser.phoneNumber and loginUser.phoneNumber.length() == 11}">
+										<c:out value="${loginUser.phoneNumber.substring(0, 3)}" />-<c:out
+											value="${loginUser.phoneNumber.substring(3, 7)}" />-<c:out
+											value="${loginUser.phoneNumber.substring(7)}" />
+									</c:when>
+
+									<%-- 📞 10桁の固定電話等の場合 --%>
+									<c:when
+										test="${not empty loginUser.phoneNumber and loginUser.phoneNumber.length() == 10}">
+										<c:choose>
+											<%-- 東京(03)や大阪(06)などの2桁市外局番 (例: 03-1234-5678) --%>
+											<c:when
+												test="${loginUser.phoneNumber.startsWith('03') or loginUser.phoneNumber.startsWith('06')}">
+												<c:out value="${loginUser.phoneNumber.substring(0, 2)}" />-<c:out
+													value="${loginUser.phoneNumber.substring(2, 6)}" />-<c:out
+													value="${loginUser.phoneNumber.substring(6)}" />
+											</c:when>
+											<%-- 通常の3桁市外局番 (例: 079-123-4567) --%>
+											<c:otherwise>
+												<c:out value="${loginUser.phoneNumber.substring(0, 3)}" />-<c:out
+													value="${loginUser.phoneNumber.substring(3, 6)}" />-<c:out
+													value="${loginUser.phoneNumber.substring(6)}" />
+											</c:otherwise>
+										</c:choose>
+									</c:when>
+
+									<%-- 万が一桁数がそれ以外、または空ならそのまま出力 --%>
+									<c:otherwise>
+										<c:out value="${loginUser.phoneNumber}" />
+									</c:otherwise>
+								</c:choose></td>
 							<td class="text-center"><a
 								href="EditAccountServlet?field=phone_number"
 								class="btn btn-sm btn-tea-outline px-3">編集</a></td>
@@ -381,56 +422,57 @@ body.tea-theme {
 									</c:forEach>
 								</tbody>
 							</table>
-					</div>
-				</c:otherwise>
-			</c:choose>
-		</div>
+							</div>
+							</c:otherwise>
+							</c:choose>
+							</div>
 
-		<div class="row g-3 justify-content-between align-items-center mt-3">
-			<div class="col-sm-auto">
-				<a href="${pageContext.request.contextPath}/main"
-					class="btn btn-tea-outline px-4"> ↩️ メイン画面へ戻る </a>
-			</div>
-			<div class="col-sm-auto">
-				<button type="button" class="btn btn-tea-danger px-3"
-					data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
-					⚠️ 退会する</button>
-			</div>
+							<div
+								class="row g-3 justify-content-between align-items-center mt-3">
+								<div class="col-sm-auto">
+									<a href="${pageContext.request.contextPath}/main"
+										class="btn btn-tea-outline px-4"> ↩️ メイン画面へ戻る </a>
+								</div>
+								<div class="col-sm-auto">
+									<button type="button" class="btn btn-tea-danger px-3"
+										data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+										⚠️ 退会する</button>
+								</div>
 
-			<div class="modal fade" id="deleteAccountModal" tabindex="-1"
-				aria-hidden="true">
-				<div class="modal-dialog modal-dialog-centered">
-					<div class="modal-content"
-						style="border-radius: 14px; border: 1px solid rgba(111, 78, 55, 0.15); background-color: #FFFFFF;">
-						<div class="modal-header"
-							style="background-color: rgba(169, 68, 66, 0.03); border-bottom: 1px solid rgba(111, 78, 55, 0.1);">
-							<h5 class="modal-title fw-bold"
-								style="color: var(--tea-badge-required);">退会の確認</h5>
-							<button type="button" class="btn-close" data-bs-dismiss="modal"
-								aria-label="Close"></button>
-						</div>
-						<div class="modal-body py-4 text-center">
-							<div class="mb-3" style="font-size: 2.5rem;">⚠️</div>
-							<h6 class="fw-bold mb-2" style="color: var(--tea-dark);">本当に退会（アカウント削除）しますか？</h6>
-							<p class="text-muted small mb-0">この操作は取り消せません。これまでの購入履歴もすべて削除されます。</p>
-						</div>
-						<div class="modal-footer justify-content-center"
-							style="border-top: 1px solid rgba(111, 78, 55, 0.1); background-color: rgba(111, 78, 55, 0.01);">
-							<button type="button" class="btn btn-tea-outline px-4"
-								data-bs-dismiss="modal">キャンセル</button>
+								<div class="modal fade" id="deleteAccountModal" tabindex="-1"
+									aria-hidden="true">
+									<div class="modal-dialog modal-dialog-centered">
+										<div class="modal-content"
+											style="border-radius: 14px; border: 1px solid rgba(111, 78, 55, 0.15); background-color: #FFFFFF;">
+											<div class="modal-header"
+												style="background-color: rgba(169, 68, 66, 0.03); border-bottom: 1px solid rgba(111, 78, 55, 0.1);">
+												<h5 class="modal-title fw-bold"
+													style="color: var(--tea-badge-required);">退会の確認</h5>
+												<button type="button" class="btn-close"
+													data-bs-dismiss="modal" aria-label="Close"></button>
+											</div>
+											<div class="modal-body py-4 text-center">
+												<div class="mb-3" style="font-size: 2.5rem;">⚠️</div>
+												<h6 class="fw-bold mb-2" style="color: var(--tea-dark);">本当に退会（アカウント削除）しますか？</h6>
+												<p class="text-muted small mb-0">この操作は取り消せません。これまでの購入履歴もすべて削除されます。</p>
+											</div>
+											<div class="modal-footer justify-content-center"
+												style="border-top: 1px solid rgba(111, 78, 55, 0.1); background-color: rgba(111, 78, 55, 0.01);">
+												<button type="button" class="btn btn-tea-outline px-4"
+													data-bs-dismiss="modal">キャンセル</button>
 
-							<form action="DeleteAccountServlet" method="post" class="m-0">
-								<button type="submit" class="btn btn-tea-danger px-4">退会する</button>
-							</form>
-						</div>
-					</div>
-				</div>
-			</div>
+												<form action="DeleteAccountServlet" method="post"
+													class="m-0">
+													<button type="submit" class="btn btn-tea-danger px-4">退会する</button>
+												</form>
+											</div>
+										</div>
+									</div>
+								</div>
 
 
-		</div>
-	</div>
-
+							</div>
+							</div>
 </body>
 
 <%@ include file="template/footer.jsp"%>

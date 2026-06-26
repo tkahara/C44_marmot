@@ -62,9 +62,14 @@ public class RegisterServlet extends HttpServlet {
             errorMsg.append("・パスワードは6文字以上で入力してください。<br>");
         }
 
-        // 📛 お名前チェック
+        // 📛 お名前チェック（サーバーサイド最終防衛線）
         if (name == null || name.trim().isEmpty()) {
             errorMsg.append("・お名前を入力してください。<br>");
+        } else {
+            // 🌟 JSPと完全同期：半角・全角の数字、および主要な記号が含まれていたら弾く
+            if (name.matches(".*[0-9\uFF10-\uFF19\\p{Punct}、-〜].*")) {
+                errorMsg.append("・お名前に数字や記号は使用できません。<br>");
+            }
         }
 
         // ✉️ メールアドレスチェック
@@ -78,9 +83,16 @@ public class RegisterServlet extends HttpServlet {
             errorMsg.append("・郵便番号は7桁の数字で入力してください。<br>");
         }
 
-        // 📍 住所チェック
+        // 📍 ご住所チェック（文字＋数字のみ許可するよう強化）
         if (address == null || address.trim().isEmpty()) {
             errorMsg.append("・ご住所を入力してください。<br>");
+        } else {
+            // 🌟 JSPと同期：先頭文字が半角・全角数字、各種記号、スペース、かっこ等から始まるものを弾く正規表現
+            // ^[0-9\uFF10-\uFF19\\p{Punct}、-〜（）\(\)\s] にマッチする場合は不正な形式
+            String trimmedAddress = address.trim();
+            if (trimmedAddress.matches("^[0-9\uFF10-\uFF19\\p{Punct}、-〜（）\\(\\)\\s].*")) {
+                errorMsg.append("・ご住所は都道府県名や市区町村名（文字）から正しく入力してください（数字や記号から始めることはできません）。<br>");
+            }
         }
 
         // 📞 電話番号チェック（クレンジング後の桁数で判定）

@@ -11,7 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 import model.Products;
-import model.User; // Userモデルをインポート
+import model.User; 
 
 @WebServlet("/CheckoutServlet")
 public class CheckoutServlet extends HttpServlet {
@@ -26,7 +26,6 @@ public class CheckoutServlet extends HttpServlet {
         @SuppressWarnings("unchecked")
         Map<Products, Integer> cartMap = (Map<Products, Integer>) session.getAttribute("cartMap");
         if (cartMap == null || cartMap.isEmpty()) {
-            // 🌟 修正：リダイレクト先を他の画面と合わせて "/main" に統一します
             response.sendRedirect(request.getContextPath() + "/main");
             return;
         }
@@ -40,17 +39,14 @@ public class CheckoutServlet extends HttpServlet {
         } else {
             // =========================================================
             // すでにログインしている場合
-            // 確認画面(checkoutConfirm.jsp)で表示・使用する「共通の箱」に
-            // usersテーブルから取得してある会員情報をしっかりと詰め込む！
+            // セッション汚染を防ぐため、この画面限りの request スコープに
+            // 安全にデータを詰め込んで確認画面(checkoutConfirm.jsp)へ送る。
             // =========================================================
-            session.setAttribute("orderName", loginUser.getUserName());
-            session.setAttribute("orderEmail", loginUser.getEmail());
-            
-            // ⚠️ ゲッターメソッド名（getPostalCode, getPhoneNumber）が 
-            // Userクラスの定義（getZipCode, getTel など）と一致しているかだけご確認ください
-            session.setAttribute("orderZip", loginUser.getPostalCode());
-            session.setAttribute("orderAddress", loginUser.getAddress());
-            session.setAttribute("orderTel", loginUser.getPhoneNumber());
+            request.setAttribute("orderName",    nullToEmpty(loginUser.getUserName()));
+            request.setAttribute("orderEmail",   nullToEmpty(loginUser.getEmail()));
+            request.setAttribute("orderZip",     nullToEmpty(loginUser.getPostalCode()));
+            request.setAttribute("orderAddress", nullToEmpty(loginUser.getAddress()));
+            request.setAttribute("orderTel",     nullToEmpty(loginUser.getPhoneNumber()));
 
             // ➔ 直接、購入確認画面へフォワード
             request.getRequestDispatcher("/WEB-INF/jsp/checkoutConfirm.jsp").forward(request, response);
@@ -60,5 +56,12 @@ public class CheckoutServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         doGet(request, response);
+    }
+
+    /**
+     * 🌟 null値を安全に空文字に変換するユーティリティメソッド
+     */
+    private String nullToEmpty(String val) {
+        return (val == null) ? "" : val;
     }
 }

@@ -40,14 +40,31 @@ public class OrderConfirmServlet extends HttpServlet {
             tel = request.getParameter("tel");
         }
 
-        // 2. セッションへ保存（確認画面で使用）
+        // 🌟【新規追加】決済情報の取得（ログイン/ゲスト共通）
+        // JSPの <select name="payment"> から選択された値 ("credit", "bank", "cod" など) を取得
+        String payment = request.getParameter("payment");
+        session.setAttribute("payment", payment);
+
+        // 💳 クレジットカード情報（"credit" が選ばれた場合のみ取得して保存）
+        if ("credit".equals(payment)) {
+            session.setAttribute("guestCardName", request.getParameter("guestCardName"));
+            session.setAttribute("guestCardNumber", request.getParameter("guestCardNumber"));
+            session.setAttribute("guestCardExpiry", request.getParameter("guestCardExpiry"));
+        } else {
+            // クレジットカード以外が選ばれた場合は、古い情報が残らないようセッションから削除
+            session.removeAttribute("guestCardName");
+            session.removeAttribute("guestCardNumber");
+            session.removeAttribute("guestCardExpiry");
+        }
+
+        // 2. 個人情報をセッションへ保存（確認画面で使用）
         session.setAttribute("orderName", userName);
         session.setAttribute("orderEmail", email);
         session.setAttribute("orderZip", zip);
         session.setAttribute("orderAddress", address);
         session.setAttribute("orderTel", tel);
         
-        // 3. 次の画面へ
+        // 3. 次の画面へ（checkoutConfirm.jsp）
         request.getRequestDispatcher("/WEB-INF/jsp/checkoutConfirm.jsp").forward(request, response);
     }
 }

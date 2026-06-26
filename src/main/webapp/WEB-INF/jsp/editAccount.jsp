@@ -140,8 +140,11 @@
                     <div class="form-text small text-muted mt-2">※ハイフンは自動で補完されます。</div>
                     
                 <% } else if (field.equals("address")) { %>
+                    <%-- 🛠️【修正】住所単体変更時にも「最初が数字・記号以外」を制限する pattern 属性を追加 --%>
                     <input type="text" class="form-control p-region p-locality p-street-address" id="newValue" name="newValue" 
-                           value="<%= currentValue %>" required placeholder="〇〇県〇〇市〇〇町1-2-3">
+                           value="<%= currentValue %>" required placeholder="〇〇県〇〇市〇〇町1-2-3"
+                           pattern="^[^\d０-９!\-/:\-@\[-`\{\-~、\-〜（）\(\)\s].*$"
+                           title="ご住所は都道府県名や市区町村名（文字）から入力してください。数字だけの入力はできません。">
                     <div class="form-text small text-muted mt-2">※郵便番号と連動して自動入力されます。</div>
 
                 <%-- 💳 クレジットカード系の個別最適化フォーム --%>
@@ -165,8 +168,14 @@
                            value="<%= currentValue %>" required placeholder="090-1234-5678（ハイフンあり・なし可）" maxlength="15" inputmode="numeric">
                     <div class="form-text small text-muted mt-2">※ハイフンは自動で補完されます。</div>
 
+                <% } else if (field.equals("email")) { %>
+                    <input type="email" class="form-control" id="newValue" name="newValue" value="<%= currentValue %>" required placeholder="example@mail.com">
+
                 <% } else { %>
-                    <input type="text" class="form-control" id="newValue" name="newValue" value="<%= currentValue %>" required>
+                    <%-- 🛠️【修正】お名前（user_name）の変更時に正規表現ハイフンエスケープ漏れを修正 --%>
+                    <input type="text" class="form-control" id="newValue" name="newValue" value="<%= currentValue %>" required
+                           pattern="[^\d０-９!\-/:\-@\[-`\{\-~、\-〜]*" title="数字や記号は使用できません。">
+                    <div id="nameError" class="small mt-1 d-none" style="color: var(--tea-badge-required); font-weight: 500;">⚠️ 数字や記号は入力できません。</div>
                 <% } %>
             </div>
 
@@ -185,6 +194,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const inputField = document.getElementById("newValue");
     const form = document.querySelector("form");
     const fieldType = "<%= field %>";
+    const nameError = document.getElementById("nameError"); 
 
     if (!inputField) return;
 
@@ -193,35 +203,44 @@ document.addEventListener("DOMContentLoaded", function() {
         let value = inputField.value;
 
         // 全角数字 ➔ 半角数字
-        value = value.replace(/[０-９]/g, function(s) {
-            return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
-        });
+        if (fieldType !== "card_name" && fieldType !== "name" && fieldType !== "user_name" && fieldType !== "email") {
+            value = value.replace(/[０-９]/g, function(s) {
+                return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
+            });
+        }
 
-        // 🛠️ 郵便番号・電話番号はハイフン入力を許容するように修正（register.jspと完全同期）
+        // 🛠️ 郵便番号・電話番号はハイフン入力を許容
         if (fieldType === "postal_code" || fieldType === "phone_number") {
             inputField.value = value.replace(/[^0-9-]/g, '');
         }
         
-        if (fieldType === "card_number") {
-            // 数字以外を完全削除
+        else if (fieldType === "card_number") {
             inputField.value = value.replace(/[^0-9]/g, '');
         }
         
-        if (fieldType === "card_name") {
-            // 1. 全角英字 ➔ 半角英字に変換
+        else if (fieldType === "card_name") {
             value = value.replace(/[ａ-ｚＡ-Ｚ]/g, function(s) {
                 return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
             });
-            // 2. 半角英字と半角スペース「以外」を完全に排除（数字や記号をシャットアウト）
             value = value.replace(/[^a-zA-Z ]/g, '');
-            // 3. 連続する半角スペースを1つに間引く
             value = value.replace(/ +/g, ' ');
-            // 4. 小文字は自動で大文字へ
             inputField.value = value.toUpperCase();
+        }
+        
+        // 🌟【修正】お名前（user_name）変更時のみ、数字・記号をリアルタイムで排除（安全にエスケープ）
+        else if (fieldType !== "password" && fieldType !== "address" && fieldType !== "card_expiration" && fieldType !== "email") {
+            const invalidChars = /[0-9０-９!\-/:\-@\[-`\{\-~、\-〜]/g;
+            
+            if (invalidChars.test(value)) {
+                inputField.value = value.replace(invalidChars, '');
+                if (nameError) nameError.classList.remove("d-none");
+            } else {
+                if (nameError) nameError.classList.add("d-none");
+            }
         }
     });
 
-    // 🛠️ 郵便番号のフォーカスアウト（Blur）時自動ハイフン挿入を追加
+    // 🛠️ 郵便番号のフォーカウント時自動ハイフン挿入
     if (fieldType === "postal_code") {
         inputField.addEventListener("blur", function() {
             let val = this.value.replace(/\D/g, "");
@@ -231,7 +250,7 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    // 🛠️ 電話番号のフォーカスアウト（Blur）時自動ハイフン挿入を追加
+    // 🛠️ 電話番号のフォーカスアウト時自動ハイフン挿入
     if (fieldType === "phone_number") {
         inputField.addEventListener("blur", function() {
             let val = this.value.replace(/\D/g, "");
@@ -247,7 +266,7 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    // 💳 有効期限のフォーカスアウト（Blur）時自動スラッシュ補完
+    // 💳 有効期限のフォーカスアウト時自動スラッシュ補完
     if (fieldType === "card_expiration") {
         inputField.addEventListener("blur", function() {
             let value = inputField.value.replace(/[０-９]/g, function(s) {
@@ -262,7 +281,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // 🌟 送信前の最終フォーマットバリデーション
     form.addEventListener("submit", function(event) {
-        // ハイフンやスペース等を除外した純粋な値を取得して検証
         const rawVal = inputField.value.trim();
         const cleanVal = rawVal.replace(/\D/g, "");
 
@@ -284,7 +302,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 alert("カード番号は16桁の数字で正しく入力してください。");
             }
         }
-        // 🌟 カード名義の最終セキュリティガードを追加（空欄での登録削除は通す）
         else if (fieldType === "card_name" && rawVal !== "") {
             if (rawVal.replace(/ /g, "") === "" || rawVal.length < 2 || rawVal.length > 26) {
                 event.preventDefault();
@@ -301,6 +318,30 @@ document.addEventListener("DOMContentLoaded", function() {
                     event.preventDefault();
                     alert("有効期限の「月」は01〜12の間で指定してください。");
                 }
+            }
+        }
+        // 🌟 メールアドレス形式チェック
+        else if (fieldType === "email") {
+            const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            if (!emailRegex.test(rawVal)) {
+                event.preventDefault();
+                alert("メールアドレスの形式が正しくありません。");
+            }
+        }
+        // 🛠️【新規追加】住所変更時の先頭文字バリデーション
+        else if (fieldType === "address") {
+            const invalidAddressStart = /^[0-9０-９!\-/:\-@\[-`\{\-~、\-〜（）\(\)\s]/;
+            if (invalidAddressStart.test(rawVal)) {
+                event.preventDefault();
+                alert("ご住所は都道府県名や市区町村名（文字）から正しく入力してください。\n数字や記号から始めることはできません。");
+            }
+        }
+        // 🌟【修正】お名前（user_name）変更時の記号制限（安全にエスケープ）
+        else if (fieldType !== "password" && fieldType !== "email") {
+            const invalidNameChars = /[0-9０-９!\-/:\-@\[-`\{\-~、\-〜]/;
+            if (invalidNameChars.test(rawVal)) {
+                event.preventDefault();
+                alert("入力内容に数字や記号が含まれています。修正してください。");
             }
         }
     });

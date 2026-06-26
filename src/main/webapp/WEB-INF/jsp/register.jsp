@@ -23,10 +23,15 @@ String cardExpiration = (regUser != null) ? regUser.getCardExpiration() : "";
 %>
 
 <%@ include file="template/header.jsp"%>
+<%-- 
+  🛑 注意: もし template/header.jsp の中で <body> や特定の <form> が開いたままになっている場合は、
+  ダイアログと干渉しないよう、独立した静的パーツとしてここで一度閉じタグを意識するか、
+  以下のように <body> タグの直後にダイアログを配置してフォームのネストを完全に防ぎます。
+--%>
 <%@ include file="template/dialogs.jsp"%>
 <%@ include file="template/cartSideBar.jsp"%>
-<!DOCTYPE html>
 
+<!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
@@ -183,7 +188,7 @@ body.tea-theme {
 			}
 			%>
 
-			<form action="RegisterServlet" method="POST" class="h-adr">
+			<form action="RegisterServlet" method="POST" class="h-adr" id="mainRegisterForm">
 				<span class="p-country-name" style="display: none;">Japan</span>
 
 				<div class="section-divider">👤 アカウント情報</div>
@@ -192,7 +197,7 @@ body.tea-theme {
 					<label for="userId" class="form-label fw-bold">ユーザーID <span
 						class="badge badge-tea-req">必須</span></label> <input type="text"
 						class="form-control" id="userId" name="userId" value="<%=userId%>"
-						placeholder="例: tea_lover" required
+						placeholder="例: tea_lover4" required
 						pattern="^[a-zA-Z][a-zA-Z0-9_]{3,19}$"
 						title="ユーザーIDは半角英数字およびアンダースコア(_)のみ、4文字以上20文字以下（先頭は英文字）で入力してください。">
 				</div>
@@ -202,13 +207,17 @@ body.tea-theme {
 						class="badge badge-tea-req">必須</span></label> <input type="password"
 						class="form-control" id="pass" name="pass" value="<%=pass%>"
 						placeholder="英数字6文字以上を推奨" required autocomplete="new-password">
+						
 				</div>
 
 				<div class="mb-3">
 					<label for="userName" class="form-label fw-bold">お名前 <span
-						class="badge badge-tea-req">必須</span></label> <input type="text"
-						class="form-control" id="userName" name="name" value="<%=name%>"
-						placeholder="紅茶 太郎" required autocomplete="off">
+						class="badge badge-tea-req">必須</span></label> 
+					<%-- 🛠️【修正】お名前欄のpattern属性のハイフンエスケープ漏れを修正 --%>
+					<input type="text" class="form-control" id="userName" name="name" value="<%=name%>"
+						placeholder="紅茶 太郎" required autocomplete="off"
+						pattern="[^\d０-９!\-/:\-@\[-`\{\-~、\-〜]*" title="お名前に数字や記号は使用できません。">
+					<div id="nameError" class="small mt-1 d-none" style="color: var(--tea-badge-required); font-weight: 500;">⚠️ お名前に数字や記号は入力できません。</div>
 				</div>
 
 				<div class="section-divider">📍 ご連絡先・お届け先</div>
@@ -241,10 +250,13 @@ body.tea-theme {
 
 				<div class="mb-3">
 					<label for="address" class="form-label fw-bold">ご住所 <span
-						class="badge badge-tea-req">必須</span></label> <input type="text"
-						class="form-control p-region p-locality p-street-address"
+						class="badge badge-tea-req">必須</span></label> 
+					<%-- 🛠️【修正】住所欄のpattern属性に「最初が文字、その後に数字や番地が続く」形式を設定 --%>
+					<input type="text" class="form-control p-region p-locality p-street-address"
 						id="address" name="address" value="<%=address%>"
-						placeholder="〇〇県〇〇市〇〇町1-2-3" required>
+						placeholder="〇〇県〇〇市〇〇町1-2-3" 
+						pattern="^[^\d０-９!\-/:\-@\[-`\{\-~、\-〜（）\(\)\s].*$"
+						title="ご住所は都道府県名や市区町村名（文字）から入力してください。数字だけの入力はできません。" required>
 					<div class="form-text small text-muted">※郵便番号からの自動補完後、番地や建物名を追記してください。</div>
 				</div>
 
@@ -302,20 +314,40 @@ body.tea-theme {
 
 	<script>
 document.addEventListener("DOMContentLoaded", function() {
+    const nameInput = document.getElementById("userName"); 
+    const nameError = document.getElementById("nameError"); 
     const emailInput = document.getElementById("email");
     const emailConfirmInput = document.getElementById("emailConfirm");
     const emailError = document.getElementById("emailError");
     const emailConfirmError = document.getElementById("emailConfirmError");
     const zipInput = document.getElementById("zipCode"); 
+    const addressInput = document.getElementById("address"); // 🛠️ 住所入力欄の取得
     const telInput = document.getElementById("tel"); 
     
     const cardNameInput = document.getElementById("guestCardName");
     const cardNumInput = document.getElementById("guestCardNumber");
     const cardExpiryInput = document.getElementById("guestCardExpiry");
     
-    const form = document.querySelector("form");
+    const form = document.getElementById("mainRegisterForm");
 
-    // 🌟 リアルタイム入力制御（数字とハイフンのみを許可して全角を半角にクレンジング）
+    // 🛠️【修正】最新ブラウザの「vフラグ」構文エラーに対応したエスケープ済みの正規表現
+    const invalidNamePattern = /[0-9０-９!\-/:\-@\[-`\{\-~、\-〜]/g;
+    const invalidNameChars = /[0-9０-９!\-/:\-@\[-`\{\-~、\-〜]/;
+
+    // お名前欄の数字・記号をリアルタイムで消去するスクリプト
+    if (nameInput) {
+        nameInput.addEventListener("input", function() {
+            let value = this.value;
+            if (invalidNamePattern.test(value)) {
+                this.value = value.replace(invalidNamePattern, '');
+                if (nameError) nameError.classList.remove("d-none");
+            } else {
+                if (nameError) nameError.classList.add("d-none");
+            }
+        });
+    }
+
+    // 🌟 リアルタイム入力制御
     [zipInput, telInput].forEach(input => {
         if (input) {
             input.addEventListener("input", function() {
@@ -323,14 +355,14 @@ document.addEventListener("DOMContentLoaded", function() {
                 value = value.replace(/[０-９]/g, function(s) {
                     return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
                 });
-                this.value = value.replace(/[^0-9-]/g, ''); // 数字とハイフン以外を除外
+                this.value = value.replace(/[^0-9-]/g, ''); 
             });
         }
     });
 
     // 📍 郵便番号のフォーカスアウト（Blur）時自動ハイフン挿入
     zipInput.addEventListener("blur", function() {
-        let val = this.value.replace(/\D/g, ""); // 一旦数字だけにする
+        let val = this.value.replace(/\D/g, ""); 
         if (val.length === 7) {
             this.value = val.slice(0, 3) + "-" + val.slice(3);
         }
@@ -338,7 +370,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // 📍 電話番号のフォーカスアウト（Blur）時自動ハイフン挿入
     telInput.addEventListener("blur", function() {
-        let val = this.value.replace(/\D/g, ""); // 一旦数字だけにする
+        let val = this.value.replace(/\D/g, ""); 
         if (val.length === 11) {
             this.value = val.slice(0, 3) + "-" + val.slice(3, 7) + "-" + val.slice(7);
         } else if (val.length === 10) {
@@ -350,7 +382,7 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
-    // 💳 クレジットカード番号（純粋な16桁の数字のみ。ハイフンなしにeditAccountと統一）
+    // 💳 クレジットカード番号
     if (cardNumInput) {
         cardNumInput.addEventListener("input", function() {
             let value = this.value;
@@ -361,27 +393,23 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    // 💳 カード名義のリアルタイム全角英数半角大文字変換＆記号・数字の完全シャットアウト
+    // 💳 カード名義のリアルタイム全角英数半角大文字変換
     if (cardNameInput) {
         cardNameInput.addEventListener("input", function() {
             let value = this.value;
-            // 1. 全角英字 ➔ 半角英字に変換
             value = value.replace(/[ａ-ｚＡ-Ｚ]/g, function(s) {
                 return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
             });
-            // 2. 半角英字と半角スペース「以外」を完全に排除（数字や記号を打ち込めなくする）
             value = value.replace(/[^a-zA-Z ]/g, '');
-            // 3. 連続する半角スペースを1つに間引く
             value = value.replace(/ +/g, ' ');
-            // 4. 小文字をすべて大文字にする
             this.value = value.toUpperCase();
         });
     }
 
-    // 💳 クレジットカード有効期限のフォーカスアウト（Blur）時自動スラッシュ補完
+    // 💳 クレジットカード有効期限の自動スラッシュ補完
     if (cardExpiryInput) {
         cardExpiryInput.addEventListener("blur", function() {
-            let value = this.value.replace(/[０-９]/g, function(s) {
+            let value = cardExpiryInput.value.replace(/[０-９]/g, function(s) {
                 return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
             });
             let digits = value.replace(/\D/g, "");
@@ -428,66 +456,78 @@ document.addEventListener("DOMContentLoaded", function() {
     emailConfirmInput.addEventListener("blur", validateConfirmEmail);
 
     // 🌟 送信前の最終フォーマットバリデーション
-    form.addEventListener("submit", function(event) {
-        const isEmailValid = validateEmail();
-        const isConfirmValid = validateConfirmEmail();
-        
-        // ハイフンを除外した純粋な桁数でチェックを行う（editAccount.jspとサーバー側のロジックに同期）
-        const zipValue = zipInput.value.replace(/\D/g, ""); 
-        const isZipValid = zipValue.length === 7;
-        
-        const telValue = telInput.value.replace(/\D/g, "");
-        const isTelValid = telValue.length >= 10 && telValue.length <= 11;
+    if (form) {
+        form.addEventListener("submit", function(event) {
+            const isEmailValid = validateEmail();
+            const isConfirmValid = validateConfirmEmail(); 
+            
+            const zipValue = zipInput.value.replace(/\D/g, ""); 
+            const isZipValid = zipValue.length === 7;
+            
+            const telValue = telInput.value.replace(/\D/g, "");
+            const isTelValid = telValue.length >= 10 && telValue.length <= 11;
 
-        let isCardValid = true;
-        let cardErrorMsg = "";
+            const isNameValid = !invalidNameChars.test(nameInput.value) && nameInput.value.trim() !== "";
 
-        const cName = cardNameInput.value.trim();
-        const cNum = cardNumInput.value.replace(/\D/g, ""); 
-        const cExpiry = cardExpiryInput.value.trim();
+            // 🛠️【新規追加】住所の先頭文字チェックバリデーション
+            // 先頭が数字全般、各種記号、かっこ、スペース等から始まる場合は不正とみなす
+            const invalidAddressStart = /^[0-9０-９!\-/:\-@\[-`\{\-~、\-〜（）\(\)\s]/;
+            const isAddressValid = !invalidAddressStart.test(addressInput.value.trim()) && addressInput.value.trim() !== "";
 
-        // クレジットカード情報の連動型チェック
-        if (cName !== "" || cardNumInput.value !== "" || cExpiry !== "") {
-            if (cName === "" || cardNumInput.value === "" || cExpiry === "") {
-                isCardValid = false;
-                cardErrorMsg = "クレジットカード情報を登録する場合は、名義人・カード番号・有効期限をすべて入力してください。";
-            } 
-            // 🌟 サーバー側に追加した「スペースだけの入力を弾く」「文字数（2〜26文字）」をフロントでもガード
-            else if (cName.replace(/ /g, "") === "" || cName.length < 2 || cName.length > 26) {
-                isCardValid = false;
-                cardErrorMsg = "カード名義は半角英字2文字以上26文字以内で正しく入力してください。";
-            }
-            else if (cNum.length !== 16) {
-                isCardValid = false;
-                cardErrorMsg = "カード番号は16桁の数字で正しく入力してください。";
-            } 
-            else if (!/^\d{2}\/\d{2}$/.test(cExpiry)) {
-                isCardValid = false;
-                cardErrorMsg = "有効期限は「月月/年年 (例: 12/29)」の形式で入力してください。";
-            } else {
-                const month = parseInt(cExpiry.split("/")[0], 10);
-                if (month < 1 || month > 12) {
+            let isCardValid = true;
+            let cardErrorMsg = "";
+
+            const cName = cardNameInput.value.trim();
+            const cNum = cardNumInput.value.replace(/\D/g, ""); 
+            const cExpiry = cardExpiryInput.value.trim();
+
+            if (cName !== "" || cardNumInput.value !== "" || cExpiry !== "") {
+                if (cName === "" || cardNumInput.value === "" || cExpiry === "") {
                     isCardValid = false;
-                    cardErrorMsg = "有効期限の「月」は01〜12の間で指定してください。";
+                    cardErrorMsg = "クレジットカード情報を登録する場合は、名義人・カード番号・有効期限をすべて入力してください。";
+                } 
+                else if (cName.replace(/ /g, "") === "" || cName.length < 2 || cName.length > 26) {
+                    isCardValid = false;
+                    cardErrorMsg = "カード名義は半角英字2文字以上26文字以内で正しく入力してください。";
+                }
+                else if (cNum.length !== 16) {
+                    isCardValid = false;
+                    cardErrorMsg = "カード番号は16桁の数字で正しく入力してください。";
+                } 
+                else if (!/^\d{2}\/\d{2}$/.test(cExpiry)) {
+                    isCardValid = false;
+                    cardErrorMsg = "有効期限は「月月/年年 (例: 12/29)」の形式で入力してください。";
+                } else {
+                    const month = parseInt(cExpiry.split("/")[0], 10);
+                    if (month < 1 || month > 12) {
+                        isCardValid = false;
+                        cardErrorMsg = "有効期限の「月」は01〜12の間で指定してください。";
+                    }
                 }
             }
-        }
 
-        // 不備があれば送信をブロック
-        if (!isEmailValid || !isConfirmValid || !isZipValid || !isTelValid || !isCardValid) {
-            event.preventDefault();
-            
-            if (!isZipValid) {
-                alert("郵便番号は7桁の数字（ハイフン除く）で正しく入力してください。");
-            } else if (!isTelValid) {
-                alert("電話番号は10桁または11桁の数字（ハイフン除く）で入力してください。");
-            } else if (!isCardValid) {
-                alert(cardErrorMsg);
-            } else {
-                alert("メールアドレスの入力内容に不備があります。修正してください。");
+            // 条件式に「!isAddressValid」を追加
+            if (!isEmailValid || !isConfirmValid || !isZipValid || !isTelValid || !isCardValid || !isNameValid || !isAddressValid) {
+                event.preventDefault(); 
+                
+                if (!isNameValid) {
+                    alert("お名前に数字や記号が含まれているか、入力されていません。");
+                } else if (!isAddressValid) {
+                    alert("ご住所は都道府県名や市区町村名（文字）から正しく入力してください。\n数字や記号から始めることはできません。");
+                } else if (!isEmailValid) {
+                    alert("メールアドレスの形式（@やドメインなど）が正しくありません。");
+                } else if (!isConfirmValid) {
+                    alert("メールアドレスと確認用メールアドレスが一致していません。");
+                } else if (!isZipValid) {
+                    alert("郵便番号は7桁の数字（ハイフン除く）で正しく入力してください。");
+                } else if (!isTelValid) {
+                    alert("電話番号は10桁または11桁の数字（ハイフン除く）で入力してください。");
+                } else if (!isCardValid) {
+                    alert(cardErrorMsg);
+                }
             }
-        }
-    });
+        });
+    }
 });
 </script>
 

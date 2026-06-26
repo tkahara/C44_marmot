@@ -5,6 +5,8 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.List;
 
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
@@ -23,6 +25,11 @@ public class EditAccountServlet extends HttpServlet {
     private final String JDBC_URL = "jdbc:mysql://localhost/keg_db?useSSL=false&allowPublicKeyRetrieval=true";
     private final String DB_USER = "keg_user";
     private final String DB_PASS = "keg_pass";
+
+    // 🛡️ ホワイトリスト：SQLインジェクション対策として、変更を許可するカラム名を厳格に定義
+    private final List<String> ALLOWED_FIELDS = Arrays.asList(
+        "password", "user_name", "postal_code", "address", "email", "phone_number", "card_number", "card_name", "card_expiration"
+    );
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String field = request.getParameter("field");
@@ -135,6 +142,11 @@ public class EditAccountServlet extends HttpServlet {
                 fieldLabel = "氏名";
                 if (newValue == null || newValue.trim().isEmpty()) {
                     errorMsg.append("・お名前を入力してください。<br>");
+                } else {
+                    // 🌟 会員登録時と完全同期：半角・全角の数字、および主要な記号が含まれていたら弾く最終防衛線
+                    if (newValue.matches(".*[0-9\uFF10-\uFF19\\p{Punct}、-〜].*")) {
+                        errorMsg.append("・お名前に数字や記号は使用できません。<br>");
+                    }
                 }
                 break;
 
@@ -158,6 +170,13 @@ public class EditAccountServlet extends HttpServlet {
                 fieldLabel = "配送先住所";
                 if (newValue == null || newValue.trim().isEmpty()) {
                     errorMsg.append("・ご住所を入力してください。<br>");
+                } else {
+                    // 🌟 会員登録・JSP側と完全同期：先頭文字が数字、記号、スペース、かっこ等から始まるものを弾く
+                    // ^[0-9\uFF10-\uFF19\\p{Punct}、-〜（）\(\)\s] にマッチする場合は不正な形式
+                    String trimmedAddress = newValue.trim();
+                    if (trimmedAddress.matches("^[0-9\uFF10-\uFF19\\p{Punct}、-〜（）\\(\\)\\s].*")) {
+                        errorMsg.append("・ご住所は都道府県名や市区町村名（文字）から正しく入力してください（数字や記号から始めることはできません）。<br>");
+                    }
                 }
                 break;
 
@@ -182,10 +201,7 @@ public class EditAccountServlet extends HttpServlet {
             case "card_name":
                 fieldLabel = "カード名義";
                 if (newValue != null && !newValue.trim().isEmpty()) {
-                    // 🌟 前後トリム、英大文字化、および「連続する半角スペース」を1つに間引くクレンジング
                     newValue = newValue.trim().toUpperCase().replaceAll(" +", " "); 
-                    
-                    // 🌟 スペースだけの不正入力、または国際規格の文字数（2〜26文字）から外れる場合は弾く
                     if (newValue.replace(" ", "").isEmpty() || newValue.length() < 2 || newValue.length() > 26) {
                         errorMsg.append("・カード名義は半角英字2文字以上26文字以内で正しく入力してください。<br>");
                     }
@@ -210,8 +226,13 @@ public class EditAccountServlet extends HttpServlet {
                     }
                 }
                 break;
+            default:
+                // 想定外のfield名の場合はマイページへ戻す
+                response.sendRedirect(request.getContextPath() + "/MyPageServlet");
+                return;
         }
 
+        // 🚨 形式エラーが1つでもあればJSPに戻す
         if (errorMsg.length() > 0) {
             request.setAttribute("errorMsg", errorMsg.toString());
             request.setAttribute("field", field);
@@ -221,6 +242,11 @@ public class EditAccountServlet extends HttpServlet {
             RequestDispatcher dispatcher = request.getRequestDispatcher("WEB-INF/jsp/editAccount.jsp");
             dispatcher.forward(request, response);
             return; 
+        }
+
+        // 🛡️ ホワイトリストに存在するかチェック（存在しないカラム名の場合は例外をスローして実行を阻止）
+        if (!ALLOWED_FIELDS.contains(field)) {
+            throw new ServletException("不正なリクエストが検出されました。許可されていない項目です。");
         }
 
         // ----------------- ここから下のDB更新処理は正常時のみ実行されます -----------------
