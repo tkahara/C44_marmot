@@ -39,14 +39,14 @@ public class CheckoutServlet extends HttpServlet {
         } else {
             // =========================================================
             // すでにログインしている場合
-            // セッション汚染を防ぐため、この画面限りの request スコープに
-            // 安全にデータを詰め込んで確認画面(checkoutConfirm.jsp)へ送る。
+            // 🛠️【大修正】リクエストスコープではなくセッションスコープに統一！
+            // 確認画面(checkoutConfirm.jsp)やOrderCompleteServletとロッカーを合わせる。
             // =========================================================
-            request.setAttribute("orderName",    nullToEmpty(loginUser.getUserName()));
-            request.setAttribute("orderEmail",   nullToEmpty(loginUser.getEmail()));
-            request.setAttribute("orderZip",     nullToEmpty(loginUser.getPostalCode()));
-            request.setAttribute("orderAddress", nullToEmpty(loginUser.getAddress()));
-            request.setAttribute("orderTel",     nullToEmpty(loginUser.getPhoneNumber()));
+            session.setAttribute("orderName",    nullToEmpty(loginUser.getUserName()));
+            session.setAttribute("orderEmail",   nullToEmpty(loginUser.getEmail()));
+            session.setAttribute("orderZip",     nullToEmpty(loginUser.getPostalCode()));
+            session.setAttribute("orderAddress", nullToEmpty(loginUser.getAddress()));
+            session.setAttribute("orderTel",     nullToEmpty(loginUser.getPhoneNumber()));
 
             // ➔ 直接、購入確認画面へフォワード
             request.getRequestDispatcher("/WEB-INF/jsp/checkoutConfirm.jsp").forward(request, response);

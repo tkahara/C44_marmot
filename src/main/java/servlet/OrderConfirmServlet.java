@@ -19,20 +19,16 @@ public class OrderConfirmServlet extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         HttpSession session = request.getSession();
         
-        // 1. ログインユーザー情報を取得
         model.User loginUser = (model.User) session.getAttribute("loginUser");
-        
         String userName, email, zip, address, tel;
 
         if (loginUser != null) {
-            // 🌟 ログイン中の場合：Userクラスのメソッドを呼び出す
             userName = loginUser.getUserName();
             email = loginUser.getEmail();
             zip = loginUser.getPostalCode();
             address = loginUser.getAddress();
             tel = loginUser.getPhoneNumber();
         } else {
-            // ゲストの場合：フォームからの入力値を取得
             userName = request.getParameter("guestName");
             email = request.getParameter("email");
             zip = request.getParameter("zipCode");
@@ -40,31 +36,44 @@ public class OrderConfirmServlet extends HttpServlet {
             tel = request.getParameter("tel");
         }
 
-        // 🌟【新規追加】決済情報の取得（ログイン/ゲスト共通）
-        // JSPの <select name="payment"> から選択された値 ("credit", "bank", "cod" など) を取得
         String payment = request.getParameter("payment");
+
+        // 🛑【サーバー側最終バリデーション】不完全ならセッションを書き換えずに送り返す
+        if (loginUser == null && "credit".equals(payment)) {
+            String cardName = request.getParameter("guestCardName");
+            String cardNum = request.getParameter("guestCardNumber");
+            String cardExpiry = request.getParameter("guestCardExpiry");
+
+            if (cardName == null || cardName.trim().isEmpty() ||
+                cardNum == null || cardNum.trim().isEmpty() || cardNum.length() != 16 ||
+                cardExpiry == null || !cardExpiry.contains("/")) {
+                
+                request.setAttribute("errorMessage", "クレジットカード情報が正しく入力されていません。修正してください。");
+                // 入力画面のJSPのパスに合わせてフォワード先を変更してください
+                request.getRequestDispatcher("/WEB-INF/jsp/guestInput.jsp").forward(request, response);
+                return; 
+            }
+        }
+
+        // チェック通過後のみセッション情報を更新
         session.setAttribute("payment", payment);
 
-        // 💳 クレジットカード情報（"credit" が選ばれた場合のみ取得して保存）
         if ("credit".equals(payment)) {
             session.setAttribute("guestCardName", request.getParameter("guestCardName"));
             session.setAttribute("guestCardNumber", request.getParameter("guestCardNumber"));
             session.setAttribute("guestCardExpiry", request.getParameter("guestCardExpiry"));
         } else {
-            // クレジットカード以外が選ばれた場合は、古い情報が残らないようセッションから削除
             session.removeAttribute("guestCardName");
             session.removeAttribute("guestCardNumber");
             session.removeAttribute("guestCardExpiry");
         }
 
-        // 2. 個人情報をセッションへ保存（確認画面で使用）
         session.setAttribute("orderName", userName);
         session.setAttribute("orderEmail", email);
         session.setAttribute("orderZip", zip);
         session.setAttribute("orderAddress", address);
         session.setAttribute("orderTel", tel);
         
-        // 3. 次の画面へ（checkoutConfirm.jsp）
         request.getRequestDispatcher("/WEB-INF/jsp/checkoutConfirm.jsp").forward(request, response);
     }
 }

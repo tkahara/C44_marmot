@@ -1,32 +1,24 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-
+<%@ taglib prefix="c" uri="jakarta.tags.core" %> <%-- JSTLを使用する場合 --%>
 <%
-// ⭕ 型とキャスト、生成部分をすべてフルパスで記述
 java.text.NumberFormat nf = (java.text.NumberFormat) pageContext.getAttribute("nf");
-
-// もしnull（取得失敗）なら、その場で生成してセットする
 if (nf == null) {
 	nf = java.text.NumberFormat.getNumberInstance();
 	pageContext.setAttribute("nf", nf);
 }
 %>
 
-
 <%@ include file="template/header.jsp" %>
 <%@ include file="template/dialogs.jsp" %>
 <%@ include file="template/cartSideBar.jsp" %>
 <!DOCTYPE html>
-
 <html>
 <head>
     <meta charset="UTF-8">
     <title>お届け先情報の入力 - Tea Salon</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
     <script src="https://yubinbango.github.io/yubinbango/yubinbango.js" charset="UTF-8" defer></script>
-
     <style>
-        /* ☕ 紅茶ブランドをイメージしたカスタムカラーテーマ */
         :root {
             --tea-primary: #6F4E37;      
             --tea-dark: #4A3325;         
@@ -34,96 +26,28 @@ if (nf == null) {
             --tea-bg-page: #F5EFEB;      
             --tea-badge-required: #A94442; 
         }
-
         body.tea-theme {
             background-color: var(--tea-bg-page) !important; 
             color: var(--tea-dark);
-            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Segoe UI', sans-serif;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
         }
-
         .tea-card {
             border: 1px solid rgba(111, 78, 55, 0.12);
             border-radius: 14px;
             box-shadow: 0 6px 25px rgba(74, 51, 37, 0.07) !important;
             background-color: #FFFFFF !important; 
         }
-
-        .tea-title {
-            color: var(--tea-dark);
-            letter-spacing: 0.05em;
-            position: relative;
-            display: inline-block;
-            padding-bottom: 10px;
-        }
-        .tea-title::after {
-            content: '';
-            position: absolute;
-            left: 50%;
-            bottom: 0;
-            transform: translateX(-50%);
-            width: 45px;
-            height: 2px;
-            background-color: var(--tea-accent);
-        }
-
-        .form-label {
-            color: var(--tea-dark);
-            font-size: 0.95rem;
-        }
-        .form-control, .form-select {
-            border: 1px solid rgba(111, 78, 55, 0.25);
-            border-radius: 6px;
-            padding: 10px 12px;
-            background-color: #FFF;
-            transition: all 0.2s ease-in-out;
-        }
-        .form-control:focus, .form-select:focus {
-            border-color: var(--tea-primary);
-            box-shadow: 0 0 0 0.25rem rgba(111, 78, 55, 0.15);
-        }
-
-        .badge-tea-req {
-            background-color: var(--tea-badge-required) !important;
-            font-weight: 500;
-            font-size: 0.75rem;
-            padding: 3px 6px;
-            vertical-align: middle;
-        }
-
-        .btn-tea-submit {
-            background-color: var(--tea-primary);
-            border-color: var(--tea-primary);
-            color: #FFF;
-            padding: 12px;
-            font-weight: bold;
-            letter-spacing: 0.05em;
-            border-radius: 6px;
-            transition: all 0.2s;
-        }
-        .btn-tea-submit:hover {
-            background-color: var(--tea-dark);
-            border-color: var(--tea-dark);
-            color: #FFF;
-        }
-        .btn-tea-outline {
-            color: var(--tea-primary);
-            border-color: rgba(111, 78, 55, 0.4);
-            border-radius: 6px;
-            font-weight: 500;
-            text-align: center;
-            text-decoration: none;
-        }
-        .btn-tea-outline:hover {
-            background-color: rgba(111, 78, 55, 0.05);
-            color: var(--tea-dark);
-            border-color: var(--tea-primary);
-        }
-
-        .credit-card-section {
-            background-color: #FAF6F3 !important; 
-            border: 1px dashed rgba(111, 78, 55, 0.3) !important;
-            border-radius: 8px;
-        }
+        .tea-card-req-span { font-size: 0.8rem; color: var(--tea-badge-required); }
+        .tea-title { color: var(--tea-dark); letter-spacing: 0.05em; position: relative; display: inline-block; padding-bottom: 10px; }
+        .tea-title::after { content: ''; position: absolute; left: 50%; bottom: 0; transform: translateX(-50%); width: 45px; height: 2px; background-color: var(--tea-accent); }
+        .form-control, .form-select { border: 1px solid rgba(111, 78, 55, 0.25); border-radius: 6px; padding: 10px 12px; }
+        .form-control:focus, .form-select:focus { border-color: var(--tea-primary); box-shadow: 0 0 0 0.25rem rgba(111, 78, 55, 0.15); }
+        .badge-tea-req { background-color: var(--tea-badge-required) !important; font-weight: 500; font-size: 0.75rem; padding: 3px 6px; }
+        .btn-tea-submit { background-color: var(--tea-primary); border-color: var(--tea-primary); color: #FFF; padding: 12px; font-weight: bold; }
+        .btn-tea-submit:hover { background-color: var(--tea-dark); border-color: var(--tea-dark); color: #FFF; }
+        .btn-tea-outline { color: var(--tea-primary); border-color: rgba(111, 78, 55, 0.4); border-radius: 6px; text-decoration: none; text-align: center; }
+        .btn-tea-outline:hover { background-color: rgba(111, 78, 55, 0.05); color: var(--tea-dark); }
+        .credit-card-section { background-color: #FAF6F3 !important; border: 1px dashed rgba(111, 78, 55, 0.3) !important; border-radius: 8px; }
     </style>
 </head>
 <body class="tea-theme">
@@ -136,77 +60,82 @@ if (nf == null) {
             <p class="text-muted small mt-2">ログインせずにゲストとして購入手続きを進めます。</p>
         </div>
         
+        <%-- 🌟 サーブレットからエラーで戻ってきた場合のメッセージ枠 --%>
+        <% if (request.getAttribute("errorMessage") != null) { %>
+            <div class="alert alert-danger fw-bold small">⚠️ <%= request.getAttribute("errorMessage") %></div>
+        <% } %>
+        
         <form action="OrderConfirmServlet" method="POST" class="h-adr" id="guestOrderForm">
             <span class="p-country-name" style="display:none;">Japan</span>
             
             <div class="mb-3">
                 <label for="userName" class="form-label fw-bold">お名前 <span class="badge badge-tea-req">必須</span></label>
                 <input type="text" class="form-control" id="userName" name="guestName" placeholder="山田 太郎" autocomplete="name" 
-                       pattern="[^\d０-９!\-/:\-@\[-`\{\-~、\-〜]*" title="お名前に数字や記号は使用できません。" required>
+                       value="${param.guestName}" pattern="[^\d０-９!\-/:\-@\[-`\{\-~、\-〜]*" title="お名前に数字や記号は使用できません。" required>
                 <div id="nameError" class="small mt-1 d-none" style="color: var(--tea-badge-required); font-weight: 500;">⚠️ お名前に数字や記号は入力できません。</div>
             </div>
             
             <div class="mb-3">
                 <label for="email" class="form-label fw-bold">メールアドレス <span class="badge badge-tea-req">必須</span></label>
-                <input type="email" class="form-control" id="email" name="email" placeholder="example@mail.com" required>
+                <input type="email" class="form-control" id="email" name="email" placeholder="example@mail.com" value="${param.email}" required>
                 <div id="emailError" class="small mt-1 d-none" style="color: var(--tea-badge-required); font-weight: 500;"></div>
             </div>
             
             <div class="mb-3">
                 <label for="emailConfirm" class="form-label fw-bold">メールアドレス（確認用） <span class="badge badge-tea-req">必須</span></label>
-                <input type="email" class="form-control" id="emailConfirm" placeholder="うっかり入力を防ぐため、もう一度ご入力ください" required>
+                <input type="email" class="form-control" id="emailConfirm" placeholder="うっかり入力を防ぐため、もう一度ご入力ください" value="${param.email}" required>
                 <div id="emailConfirmError" class="small mt-1 d-none" style="color: var(--tea-badge-required); font-weight: 500;"></div>
             </div>
             
             <div class="mb-3">
                 <label for="zipCode" class="form-label fw-bold">郵便番号 <span class="badge badge-tea-req">必須</span></label>
-                <input type="text" class="form-control p-postal-code" id="zipCode" name="zipCode" placeholder="1234567（ハイフンなし）" maxlength="7" inputmode="numeric" required>
+                <input type="text" class="form-control p-postal-code" id="zipCode" name="zipCode" placeholder="1234567（ハイフンなし）" value="${param.zipCode}" maxlength="7" inputmode="numeric" required>
                 <div class="form-text small text-muted">※半角数字7桁でご入力ください。</div>
             </div>
             
             <div class="mb-3">
                 <label for="address" class="form-label fw-bold">ご住所（お届け先） <span class="badge badge-tea-req">必須</span></label>
-                <%-- 🌟【変更】HTML5標準のpattern属性に「最初が数字・記号以外で始まる」正規表現を設定 --%>
                 <input type="text" class="form-control p-region p-locality p-street-address" id="address" name="address" 
-                       placeholder="〇〇県〇〇市〇〇町1-2-3" pattern="^[^\d０-９!\-/:\-@\[-`\{\-~、\-〜（）\(\)\s].*$" 
+                       value="${param.address}" placeholder="〇〇県〇〇市〇〇町1-2-3" pattern="^[^\d０-９!\-/:\-@\[-`\{\-~、\-〜（）\(\)\s].*$" 
                        title="ご住所は都道府県名や市区町村名（文字）から入力してください。数字だけの入力はできません。" required>
                 <div class="form-text small text-muted">※郵便番号を入力すると自動補完されます。以降の番地や建物名を手動で追記してください。</div>
             </div>
             
             <div class="mb-3">
                 <label for="tel" class="form-label fw-bold">電話番号 <span class="badge badge-tea-req">必須</span></label>
-                <input type="tel" class="form-control" id="tel" name="tel" placeholder="09012345678（ハイフンなし）" maxlength="11" inputmode="numeric" required>
+                <input type="tel" class="form-control" id="tel" name="tel" placeholder="09012345678（ハイフンなし）" value="${param.tel}" maxlength="11" inputmode="numeric" required>
                 <div class="form-text small text-muted">※半角数字10桁または11桁でご入力ください。</div>
             </div>
             
             <div class="mb-4">
                 <label for="payment" class="form-label fw-bold">決済方法 <span class="badge badge-tea-req">必須</span></label>
                 <select class="form-select" id="payment" name="payment" required onchange="toggleCardForm()">
-                    <option value="credit">クレジットカード</option>
-                    <option value="bank">銀行振込（前払い）</option>
-                    <option value="cod">代金引換</option>
-                    <option value="convenience">コンビニ決済（前払い）</option>
+                    <option value="credit" ${param.payment == 'credit' ? 'selected' : ''}>クレジットカード</option>
+                    <option value="bank" ${param.payment == 'bank' ? 'selected' : ''}>銀行振込（前払い）</option>
+                    <option value="cod" ${param.payment == 'cod' ? 'selected' : ''}>代金引換</option>
+                    <option value="convenience" ${param.payment == 'convenience' ? 'selected' : ''}>コンビニ決済（前払い）</option>
                 </select>
             </div>
             
             <div id="creditCardForm" class="p-3 mb-4 credit-card-section" style="display: block;">
-                <h5 class="fw-bold mb-3" style="font-size: 0.95rem; color: var(--tea-primary); letter-spacing: 0.03em;">💳 クレジットカード情報</h5>
+                <h5 class="fw-bold mb-3" style="font-size: 0.95rem; color: var(--tea-primary); letter-spacing: 0.03em;">
+                    💳 クレジットカード情報 <span id="cardReqLabel" class="tea-card-req-span">（必須入力）</span>
+                </h5>
                 
                 <div class="mb-3">
                     <label for="guestCardName" class="form-label small fw-bold">カード名義人（半角大文字）</label>
-                    <input type="text" class="form-control" id="guestCardName" name="guestCardName" placeholder="TARO YAMADA"
-                           pattern="[A-Z\s]*" title="カード名義人は半角英大文字のみで入力してください。">
+                    <input type="text" class="form-control" id="guestCardName" name="guestCardName" placeholder="TARO YAMADA" value="${param.guestCardName}" pattern="[A-Z\s]*" title="カード名義人は半角英大文字のみで入力してください。">
                 </div>
                 
                 <div class="mb-3">
                     <label for="guestCardNumber" class="form-label small fw-bold">カード番号（半角数字16桁）</label>
-                    <input type="text" class="form-control" id="guestCardNumber" name="guestCardNumber" placeholder="1234567812345678" maxlength="16" pattern="\d{16}">
+                    <input type="text" class="form-control" id="guestCardNumber" name="guestCardNumber" placeholder="1234567812345678" value="${param.guestCardNumber}" maxlength="16" pattern="\d{16}">
                 </div>
                 
                 <div class="row">
                     <div class="col-6">
                         <label for="guestCardExpiry" class="form-label small fw-bold">有効期限 (MM/YY)</label>
-                        <input type="text" class="form-control" id="guestCardExpiry" name="guestCardExpiry" placeholder="12/29" maxlength="5" inputmode="numeric">
+                        <input type="text" class="form-control" id="guestCardExpiry" name="guestCardExpiry" placeholder="12/29" value="${param.guestCardExpiry}" maxlength="5" inputmode="numeric">
                     </div>
                 </div>
             </div>
@@ -217,7 +146,6 @@ if (nf == null) {
                 <button type="submit" class="btn btn-tea-submit btn-lg">購入確認画面へ進む ➔</button>
                 <a href="javascript:history.back();" class="btn btn-tea-outline">商品詳細に戻る</a>
             </div>
-            
         </form>
     </div>
 </div>
@@ -227,12 +155,15 @@ function toggleCardForm() {
     const paymentSelect = document.getElementById('payment');
     const cardForm = document.getElementById('creditCardForm');
     const cardInputs = cardForm.querySelectorAll('input');
+    const cardReqLabel = document.getElementById('cardReqLabel');
 
     if (paymentSelect.value === 'credit') {
         cardForm.style.display = 'block';
+        cardReqLabel.style.display = 'inline';
         cardInputs.forEach(input => input.required = true);
     } else {
         cardForm.style.display = 'none';
+        cardReqLabel.style.display = 'none';
         cardInputs.forEach(input => {
             input.required = false;
             input.value = '';
@@ -248,20 +179,17 @@ document.addEventListener("DOMContentLoaded", function() {
     const emailError = document.getElementById("emailError");
     const emailConfirmError = document.getElementById("emailConfirmError");
     const zipInput = document.getElementById("zipCode"); 
-    const addressInput = document.getElementById("address"); // 🌟 住所入力欄の取得
+    const addressInput = document.getElementById("address"); 
     const telInput = document.getElementById("tel"); 
     const paymentSelect = document.getElementById('payment');
     const cardNameInput = document.getElementById("guestCardName"); 
     const cardNumberInput = document.getElementById("guestCardNumber"); 
     const cardExpiryInput = document.getElementById("guestCardExpiry"); 
-    
     const form = document.getElementById("guestOrderForm");
 
-    // 🛠️ 前回の「-」エスケープ漏れを完全に修正した正規表現オブジェクト
     const invalidNamePattern = /[0-9０-９!\-/:\-@\[-`\{\-~、\-〜]/g;
     const invalidNameCheck = /[0-9０-９!\-/:\-@\[-`\{\-~、\-〜]/;
 
-    // お名前欄の数字・記号をリアルタイムで消去するスクリプト
     nameInput.addEventListener("input", function() {
         let value = nameInput.value;
         if (invalidNamePattern.test(value)) {
@@ -272,137 +200,99 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
-    // カード名義人欄の小文字を大文字に自動変換し、英字以外を排除する
     cardNameInput.addEventListener("input", function() {
         let value = cardNameInput.value.toUpperCase(); 
-        value = value.replace(/[ａ-ｚＡ-Ｚ]/g, function(s) {
-            return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
-        });
+        value = value.replace(/[ａ-ｚＡ-Ｚ]/g, function(s) { return String.fromCharCode(s.charCodeAt(0) - 0xFEE0); });
         cardNameInput.value = value.replace(/[^A-Z\s]/g, '').replace(/ +/g, ' '); 
     });
 
-    // 郵便番号のハイフン・記号をリアルタイムで自動消去するスクリプト
     zipInput.addEventListener("input", function() {
         let value = zipInput.value;
-        value = value.replace(/[０-９]/g, function(s) {
-            return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
-        });
+        value = value.replace(/[０-９]/g, function(s) { return String.fromCharCode(s.charCodeAt(0) - 0xFEE0); });
         zipInput.value = value.replace(/[^0-9]/g, '');
     });
 
-    // 電話番号のリアルタイム記号・全角消去制御
     telInput.addEventListener("input", function() {
         let value = telInput.value;
-        value = value.replace(/[０-９]/g, function(s) {
-            return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
-        });
+        value = value.replace(/[０-９]/g, function(s) { return String.fromCharCode(s.charCodeAt(0) - 0xFEE0); });
         telInput.value = value.replace(/[^0-9]/g, '');
     });
 
-    // カード番号のリアルタイム記号・全角消去制御
     cardNumberInput.addEventListener("input", function() {
         let value = cardNumberInput.value;
-        value = value.replace(/[０-9]/g, function(s) {
-            return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
-        });
+        value = value.replace(/[０-9]/g, function(s) { return String.fromCharCode(s.charCodeAt(0) - 0xFEE0); });
         cardNumberInput.value = value.replace(/[^0-9]/g, '');
     });
 
-    // カード有効期限のフォーカスアウト時自動スラッシュ補完ロジック
     cardExpiryInput.addEventListener("blur", function() {
-        let value = cardExpiryInput.value.replace(/[０-９]/g, function(s) {
-            return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
-        });
+        let value = cardExpiryInput.value.replace(/[０-９]/g, function(s) { return String.fromCharCode(s.charCodeAt(0) - 0xFEE0); });
         let digits = value.replace(/\D/g, "");
         if (digits.length === 4) {
             cardExpiryInput.value = digits.slice(0, 2) + "/" + digits.slice(2);
         }
     });
 
-    // メールアドレスの簡易形式チェック
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
     function validateEmail() {
-        if (emailInput.value === "") {
-            emailError.classList.add("d-none");
-            return true;
-        }
+        if (emailInput.value === "") { emailError.classList.add("d-none"); return true; }
         if (!emailRegex.test(emailInput.value)) {
-            emailError.textContent = "⚠️ メールの形式（@やドメインなど）が正しくありません。";
-            emailError.classList.remove("d-none");
-            return false;
-        } else {
-            emailError.classList.add("d-none");
-            return true;
-        }
+            emailError.textContent = "⚠️ メールの形式が正しくありません。";
+            emailError.classList.remove("d-none"); return false;
+        } else { emailError.classList.add("d-none"); return true; }
     }
 
     function validateConfirmEmail() {
-        if (emailConfirmInput.value === "") {
-            emailConfirmError.classList.add("d-none");
-            return true;
-        }
+        if (emailConfirmInput.value === "") { emailConfirmError.classList.add("d-none"); return true; }
         if (emailInput.value !== emailConfirmInput.value) {
-            emailConfirmError.textContent = "⚠️ 入力されたメールアドレスと一致しません。";
-            emailConfirmError.classList.remove("d-none");
-            return false;
-        } else {
-            emailConfirmError.classList.add("d-none");
-            return true;
-        }
+            ajaxConfirmError.textContent = "⚠️ 入力されたメールアドレスと一致しません。";
+            emailConfirmError.classList.remove("d-none"); return false;
+        } else { emailConfirmError.classList.add("d-none"); return true; }
     }
 
     emailInput.addEventListener("blur", () => { validateEmail(); validateConfirmEmail(); });
     emailConfirmInput.addEventListener("blur", validateConfirmEmail);
 
-    // フォーム送信時の最終防衛ライン
     form.addEventListener("submit", function(event) {
         const isEmailValid = validateEmail();
         const isConfirmValid = validateConfirmEmail();
         const isZipValid = zipInput.value.length === 7;
         const isTelValid = telInput.value.length === 10 || telInput.value.length === 11;
         const isNameValid = !invalidNameCheck.test(nameInput.value) && nameInput.value.trim() !== "";
-
-        // 🌟【新規追加】住所の先頭文字チェックバリデーション
-        // 先頭が数字全般、各種記号、かっこ、スペース等から始まる場合は不正とみなす
         const invalidAddressStart = /^[0-9０-９!\-/:\-@\[-`\{\-~、\-〜（）\(\)\s]/;
         const isAddressValid = !invalidAddressStart.test(addressInput.value.trim()) && addressInput.value.trim() !== "";
 
-        // 🚨 共通項目のバリデーションチェック
         if (!isNameValid || !isEmailValid || !isConfirmValid || !isZipValid || !isTelValid || !isAddressValid) {
             event.preventDefault(); 
-            if (!isNameValid) {
-                alert("お名前に数字や記号が含まれているか、入力されていません。");
-            } else if (!isAddressValid) {
-                alert("ご住所は都道府県名や市区町村名（文字）から正しく入力してください。\n数字や記号から始めることはできません。");
-            } else if (!isZipValid) {
-                alert("郵便番号はハイフンなしの7桁で入力してください。");
-            } else if (!isTelValid) {
-                alert("電話番号はハイフンなしの10桁または11桁の数字で入力してください。");
-            } else {
-                alert("メールアドレスの入力内容に不備があります。修正してください。");
-            }
+            if (!isNameValid) alert("お名前に数字や記号が含まれているか、入力されていません。");
+            else if (!isAddressValid) alert("ご住所は文字から正しく入力してください。");
+            else if (!isZipValid) alert("郵便番号は7桁の数字で入力してください。");
+            else if (!isTelValid) alert("電話番号は10桁または11桁の数字で入力してください。");
+            else alert("メールアドレスの入力内容に不備があります。");
             return;
         }
 
-        // クレジットカード決済選択時のみの追加最終バリデーション
         if (paymentSelect.value === 'credit') {
-            const cardNum = cardNumberInput.value.trim();
-            const cardName = cardNameInput.value.trim();
-            const cardExpiry = cardExpiryInput.value.trim();
+            // 🌟 空文字例外を防ぐ安全ガード
+            const cardNum = (cardNumberInput.value || "").trim();
+            const cardName = (cardNameInput.value || "").trim();
+            const cardExpiry = (cardExpiryInput.value || "").trim();
 
+            if (cardNum === "" || cardName === "" || cardExpiry === "") {
+                event.preventDefault();
+                alert("クレジットカード情報（名義・番号・有効期限）をすべて入力してください。");
+                return;
+            }
             if (cardNum.length !== 16) {
                 event.preventDefault();
                 alert("カード番号は16桁の数字で正しく入力してください。");
                 return;
             }
-
             if (cardName.replace(/ /g, "") === "" || cardName.length < 2 || cardName.length > 26) {
                 event.preventDefault();
                 alert("カード名義は半角英字2文字以上26文字以内で正しく入力してください。");
                 return;
             }
-
             if (!/^\d{2}\/\d{2}$/.test(cardExpiry)) {
                 event.preventDefault();
                 alert("有効期限は「月月/年年 (例: 12/29)」の形式で入力してください。");
@@ -418,11 +308,8 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 });
-
 window.onload = toggleCardForm;
 </script>
-
 </body>
 </html>
-
 <%@ include file="template/footer.jsp" %>

@@ -12,8 +12,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 import dao.UsersDAO;
-import model.User;
 import model.Order;
+import model.User;
 
 @WebServlet("/MyPageServlet") // 💡実際の遷移先URLマッピングに合わせてください
 public class MyPageServlet extends HttpServlet {

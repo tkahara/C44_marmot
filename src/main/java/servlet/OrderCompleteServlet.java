@@ -25,7 +25,7 @@ public class OrderCompleteServlet extends HttpServlet {
 		HttpSession session = request.getSession();
 
 		// ==============================
-		// 🔥① すでに注文済みチェック
+		// ① すでに注文済みチェック
 		// ==============================
 		Boolean alreadyOrdered = (Boolean) session.getAttribute("alreadyOrdered");
 
@@ -48,7 +48,7 @@ public class OrderCompleteServlet extends HttpServlet {
 		// 2. 決済方法
 		String paymentMethod = request.getParameter("payment");
 		if (paymentMethod == null || paymentMethod.isEmpty()) {
-			paymentMethod = (String) session.getAttribute("guestPayment");
+			paymentMethod = (String) session.getAttribute("payment"); // 💡「payment」に統一
 		}
 
 		// 3. ユーザー情報の取得
@@ -56,36 +56,52 @@ public class OrderCompleteServlet extends HttpServlet {
 		String userId = (loginUser != null) ? loginUser.getUserId() : null;
 
 		// =========================================================
-		// 🛑【追加】クレジットカード情報の最終防衛バリデーション
+		// 🛑 クレジットカード情報の最終防衛バリデーション
+		// =========================================================
+		// =========================================================
+		// 🛑 クレジットカード情報の最終防衛バリデーション
 		// =========================================================
 		if ("credit".equals(paymentMethod)) {
-			// 会員としてログインしていない、または会員だがカード番号が登録されていない場合
-			if (loginUser == null || loginUser.getCardNumber() == null || loginUser.getCardNumber().trim().isEmpty()) {
+			boolean isCardEmpty = false;
 
-				// 不正な決済方法を「銀行振込」に変更して確認画面に戻すための措置
-				session.setAttribute("guestPayment", "bank");
-				session.setAttribute("errorMessage", "クレジットカード情報が登録されていません。別の決済方法を選択してください。");
+			if (loginUser != null) {
+				// 👤 会員の場合：ログインユーザーの保持するカード番号をチェック
+				if (loginUser.getCardNumber() == null || loginUser.getCardNumber().trim().isEmpty()) {
+					isCardEmpty = true;
+				}
+			} else {
+				// 👥 ゲストの場合：セッションに保存されたゲスト用カード番号をチェック
+				String guestCardNum = (String) session.getAttribute("guestCardNumber");
+				if (guestCardNum == null || guestCardNum.trim().isEmpty()) {
+					isCardEmpty = true;
+				}
+			}
 
-				// 注文確認画面を表示するサーブレット、もしくはJSPへ差し戻し
-				// （ここでは確認画面 orderConfirm.jsp のフォルダ階層等に合わせてフォワードしてください）
-				request.getRequestDispatcher("/WEB-INF/jsp/orderConfirm.jsp").forward(request, response);
+			// カード情報がどちらのルートでも見つからなかった場合のみ、確認画面に押し戻す
+			if (isCardEmpty) {
+				session.setAttribute("payment", "bank"); // 決済方法を安全な銀行振込に強制変更
+				session.setAttribute("errorMessage", "クレジットカード情報が正しく入力されていないか、登録されていません。別の決済方法を選択してください。");
+
+				request.getRequestDispatcher("/WEB-INF/jsp/checkoutConfirm.jsp").forward(request, response);
 				return;
 			}
 		}
 
-		// 🌟【大修正】OrderConfirmServletが一本化してくれた共通セッション（order〜）から直接取得
+		// =========================================================
+		// 🛠️【大修正】すべてセッションスコープから直接、安全に一発取得
+		// =========================================================
 		String name = (String) session.getAttribute("orderName");
 		String zip = (String) session.getAttribute("orderZip");
 		String address = (String) session.getAttribute("orderAddress");
 		String email = (String) session.getAttribute("orderEmail");
 		String phone = (String) session.getAttribute("orderTel");
 
-		// クレジットカード情報
+		// クレジットカード情報（セッションから取得）
 		String cardNumber = (String) session.getAttribute("guestCardNumber");
 		String cardName = (String) session.getAttribute("guestCardName");
-		String cardExpiration = (String) session.getAttribute("guestCardExpiration");
+		String cardExpiration = (String) session.getAttribute("guestCardExpiry"); // キー名を統一
 
-		// 🌟【安全対策】DB処理や予期せぬエラーで画面が真っ白(500エラー)になるのを防ぐ
+		// 🌟【安全対策】DB処理や予期せぬエラーで画面が真っ白になるのを防ぐ
 		try {
 			// 4. DB保存
 			OrderDAO orderDAO = new OrderDAO();
@@ -96,14 +112,26 @@ public class OrderCompleteServlet extends HttpServlet {
 
 			if (isSuccess) {
 				// ==============================
-				// 🔥② 成功時フラグセット
+				// ② 成功時フラグセット
 				// ==============================
 				session.setAttribute("alreadyOrdered", true);
 				session.setAttribute("isOrderCompleted", true);
 
+				// 🌟【追加】会員とゲストで、完了画面に渡すカード番号を切り分ける
+				String displayCardNumber = null;
+				if ("credit".equals(paymentMethod)) {
+					if (loginUser != null) {
+						// 会員の場合：ログインユーザーオブジェクトから取得
+						displayCardNumber = loginUser.getCardNumber();
+					} else {
+						// ゲストの場合：事前にセッションから読み込んだcardNumberを使用
+						displayCardNumber = cardNumber;
+					}
+				}
+
 				// 🌟 complete.jsp が表示で使用するデータをセッションに退避
 				session.setAttribute("confirmedCart", cartMap);
-				session.setAttribute("confirmedCardNumber", cardNumber);
+				session.setAttribute("confirmedCardNumber", displayCardNumber); // 🛠️ 適切に切り分けた番号をセット
 				session.setAttribute("confirmedName", name);
 				session.setAttribute("confirmedAddress", address);
 				session.setAttribute("confirmedPayment", paymentMethod);
@@ -111,7 +139,7 @@ public class OrderCompleteServlet extends HttpServlet {
 				// カート削除
 				session.removeAttribute("cartMap");
 
-				// 🌟【修正】使い終わった共通オーダー情報をセッションから綺麗にお掃除
+				// 🧹【お掃除】使い終わった共通オーダー情報をセッションから綺麗に削除
 				session.removeAttribute("orderName");
 				session.removeAttribute("orderEmail");
 				session.removeAttribute("orderZip");
@@ -119,10 +147,10 @@ public class OrderCompleteServlet extends HttpServlet {
 				session.removeAttribute("orderTel");
 
 				// ゲスト用決済情報の削除
-				session.removeAttribute("guestPayment");
+				session.removeAttribute("payment");
 				session.removeAttribute("guestCardNumber");
 				session.removeAttribute("guestCardName");
-				session.removeAttribute("guestCardExpiration");
+				session.removeAttribute("guestCardExpiry");
 
 				response.sendRedirect(request.getContextPath() + "/complete.jsp");
 
