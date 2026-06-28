@@ -22,7 +22,7 @@ public class ProductsDAO {
     public List<Products> findAll() {
         List<Products> list = new ArrayList<>();
         // ★SQLのカラム名を大文字のテーブル定義に完全一致させました
-        String sql = "SELECT product_name, description, price, image_path FROM PRODUCTS";
+        String sql = "SELECT product_name, description, price, image_path FROM products";
 
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
@@ -52,7 +52,7 @@ public class ProductsDAO {
     public Products findByName(String searchName) {
         Products products = null;
         // ★SQL文から「id」を完全に排除し、大文字のPRODUCTSテーブルから取得
-        String sql = "SELECT product_name, description, price, image_path FROM PRODUCTS WHERE product_name = ?";
+        String sql = "SELECT product_name, description, price, image_path FROM products WHERE product_name = ?";
 
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");

@@ -4,7 +4,7 @@
     <footer class="bg-dark text-white text-center py-4 mt-auto">
         <div class="container">
             <p class="mb-1">&copy; 2026 マーモット. All Rights Reserved.</p>
-            <small class="text-muted">Java & Bootstrap グループワークプロジェクト ver2.0</small>
+            <small class="text-muted">Java & Bootstrap グループワークプロジェクト ver2.0.1</small>
         </div>
     </footer>
 

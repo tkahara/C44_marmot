@@ -28,7 +28,7 @@ public class UsersDAO {
         }
         
         String sql = "SELECT user_id, user_name, password, postal_code, address, email, phone_number, card_number, card_name, card_expiration "
-                   + "FROM USERS WHERE user_id = ? AND password = ?";
+                   + "FROM users WHERE user_id = ? AND password = ?";
         
         try (Connection conn = DriverManager.getConnection(JDBC_URL, DB_USER, DB_PASS);
              PreparedStatement pStmt = conn.prepareStatement(sql)) {
@@ -64,7 +64,7 @@ public class UsersDAO {
     public boolean existsUserId(String userId) {
         try { Class.forName("com.mysql.cj.jdbc.Driver"); } catch (ClassNotFoundException e) { throw new IllegalStateException(e); }
 
-        String sql = "SELECT COUNT(*) FROM USERS WHERE user_id = ?";
+        String sql = "SELECT COUNT(*) FROM users WHERE user_id = ?";
         try (Connection conn = DriverManager.getConnection(JDBC_URL, DB_USER, DB_PASS);
              PreparedStatement pStmt = conn.prepareStatement(sql)) {
             
@@ -84,7 +84,7 @@ public class UsersDAO {
     public boolean register(User user) {
         try { Class.forName("com.mysql.cj.jdbc.Driver"); } catch (ClassNotFoundException e) { throw new IllegalStateException(e); }
 
-        String sql = "INSERT INTO USERS (user_id, user_name, password, postal_code, address, email, phone_number, card_number, card_name, card_expiration) "
+        String sql = "INSERT INTO users (user_id, user_name, password, postal_code, address, email, phone_number, card_number, card_name, card_expiration) "
                    + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         
         try (Connection conn = DriverManager.getConnection(JDBC_URL, DB_USER, DB_PASS);
@@ -128,7 +128,7 @@ public class UsersDAO {
     public boolean deleteCardNum(String userId) {
         try { Class.forName("com.mysql.cj.jdbc.Driver"); } catch (ClassNotFoundException e) { throw new IllegalStateException(e); }
 
-        String sql = "UPDATE USERS SET card_number = NULL, card_name = NULL, card_expiration = NULL WHERE user_id = ?";
+        String sql = "UPDATE users SET card_number = NULL, card_name = NULL, card_expiration = NULL WHERE user_id = ?";
 
         try (Connection conn = DriverManager.getConnection(JDBC_URL, DB_USER, DB_PASS);
              PreparedStatement pStmt = conn.prepareStatement(sql)) {
@@ -148,8 +148,8 @@ public class UsersDAO {
         try { Class.forName("com.mysql.cj.jdbc.Driver"); } catch (ClassNotFoundException e) { throw new IllegalStateException(e); }
 
         // 🌟 順番が超重要：先に子供（ORDERS）を消してから、親（USERS）を消します
-        String deleteOrdersSql = "DELETE FROM ORDERS WHERE user_id = ?";
-        String deleteUserSql = "DELETE FROM USERS WHERE user_id = ?";
+        String deleteOrdersSql = "DELETE FROM orders WHERE user_id = ?";
+        String deleteUserSql = "DELETE FROM users WHERE user_id = ?";
 
         try (Connection conn = DriverManager.getConnection(JDBC_URL, DB_USER, DB_PASS)) {
             // オートコミットをオフにして、両方成功したときだけ反映（トランザクション）
@@ -188,7 +188,7 @@ public class UsersDAO {
     public List<model.Order> getOrderHistory(String userId) {
         List<model.Order> orderList = new ArrayList<>();
         String sql = "SELECT product_name, quantity, unit_price, total_price, order_date, payment_method " +
-                     "FROM ORDERS WHERE user_id = ? ORDER BY order_date DESC";
+                     "FROM orders WHERE user_id = ? ORDER BY order_date DESC";
 
         try { Class.forName("com.mysql.cj.jdbc.Driver"); } catch (ClassNotFoundException e) { throw new IllegalStateException(e); }
 
