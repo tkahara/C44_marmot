@@ -250,7 +250,7 @@ public class EditAccountServlet extends HttpServlet {
         }
 
         // ----------------- ここから下のDB更新処理は正常時のみ実行されます -----------------
-        String sql = "UPDATE USERS SET " + field + " = ? WHERE user_id = ?";
+        String sql = "UPDATE users SET " + field + " = ? WHERE user_id = ?";
 
         try { Class.forName("com.mysql.cj.jdbc.Driver"); } catch (ClassNotFoundException e) { throw new IllegalStateException(e); }
 
