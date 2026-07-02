@@ -2,7 +2,7 @@
 	pageEncoding="UTF-8"%>
 <%@ page import="java.util.List"%>
 <%@ page import="java.text.NumberFormat"%>
-<%-- 追加 --%>
+<%@ page import="model.Products" %> <%-- 💡 クラスのインポート漏れを防ぐために明示 --%>
 
 <%
 // pageContextから取得を試みる
@@ -113,7 +113,7 @@ session.removeAttribute("errorMessage");
 	</div>
 </main>
 
-<%-- 🌟 ここから追加：退会完了通知用モーダル（ダイアログ） --%>
+<%-- 🌟 退会完了通知用モーダル（ダイアログ） --%>
 <div class="modal fade" id="withdrawnCompleteModal" tabindex="-1"
 	aria-labelledby="withdrawnModalLabel" aria-hidden="true">
 	<div class="modal-dialog modal-dialog-centered">
@@ -147,25 +147,40 @@ session.removeAttribute("errorMessage");
 	</div>
 </div>
 
-<%-- 🌟 パラメータ自動検知＆モーダル起動スクリプト --%>
+<%-- 🌟【機能統合＆大修正】各種パラメータ自動検知＆カート自動展開スクリプト --%>
 <script type="text/javascript">
 	window.addEventListener('DOMContentLoaded', function() {
-		// 1. URLの後ろについているパラメータ（?withdrawn=true）を取得
 		const urlParams = new URLSearchParams(window.location.search);
 
-		// 2. 「withdrawn」が「true」だった場合、自動でモーダルを起動する
+		// 1. 退会完了（withdrawn=true）の処理
 		if (urlParams.get('withdrawn') === 'true') {
-			const myModal = new bootstrap.Modal(document
-					.getElementById('withdrawnCompleteModal'));
+			const myModal = new bootstrap.Modal(document.getElementById('withdrawnCompleteModal'));
 			myModal.show();
-
-			// 🌟 お見事ポイント
-			// モーダル表示後、URLから「?withdrawn=true」という見た目の悪い文字を自動で消去します。
-			// これにより、ユーザーがページをF5キーなどで手動リロードした時にダイアログが何度も出なくなります。
+			
+			// F5キー連打対策：URLのパラメータをクリア
 			history.replaceState(null, '', window.location.pathname);
+		}
+
+		// 2. カート数量変更（added=true）の処理
+		if (urlParams.get('added') === 'true') {
+			// 商品詳細画面と同じ正しいID「sideCart」をターゲットにする
+			const sideCartElement = document.getElementById('sideCart');
+			
+			if (sideCartElement) {
+				if (window.bootstrap && bootstrap.Offcanvas) {
+					const bsOffcanvas = new bootstrap.Offcanvas(sideCartElement);
+					bsOffcanvas.show();
+				} else {
+					sideCartElement.classList.add('show');
+					sideCartElement.style.visibility = 'visible';
+				}
+				
+				// 🌟 応用お見事ポイント
+				// カートが開いた後、同じようにURLから「?added=true」を自動消去してリロード時の再展開を防ぎます！
+				history.replaceState(null, '', window.location.pathname);
+			}
 		}
 	});
 </script>
-<%-- 🌟 ここまで追加 --%>
 
 <%@ include file="template/footer.jsp"%>

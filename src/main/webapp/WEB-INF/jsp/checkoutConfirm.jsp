@@ -179,5 +179,32 @@ int confirmTotalAmount = 0;
 			</div>
 		</form>
 	</div>
+
+	<%@ include file="template/footer.jsp"%>
+
+	<%-- 🌟【重要追加】全画面で同期した正しいID「sideCart」を追跡して自動展開するスクリプト --%>
+	<script type="text/javascript">
+		window.addEventListener('DOMContentLoaded', function() {
+			const urlParams = new URLSearchParams(window.location.search);
+
+			if (urlParams.get('added') === 'true') {
+				// 正しいカートID「sideCart」を正確に取得
+				const sideCartElement = document.getElementById('sideCart');
+				
+				if (sideCartElement) {
+					if (window.bootstrap && bootstrap.Offcanvas) {
+						const bsOffcanvas = new bootstrap.Offcanvas(sideCartElement);
+						bsOffcanvas.show();
+					} else {
+						sideCartElement.classList.add('show');
+						sideCartElement.style.visibility = 'visible';
+					}
+					
+					// メインやマイページと同じスマート手法：URLパラメータを消去してリロード対策
+					history.replaceState(null, '', window.location.pathname);
+				}
+			}
+		});
+	</script>
 </body>
 </html>

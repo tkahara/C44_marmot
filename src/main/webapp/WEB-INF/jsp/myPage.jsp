@@ -324,11 +324,9 @@ body.tea-theme {
 			</div>
 
 			<div class="d-flex justify-content-end mt-3">
-				<div class="d-flex justify-content-end mt-3">
-					<button type="button" class="btn btn-tea-warn btn-sm px-3"
-						data-bs-toggle="modal" data-bs-target="#deleteCardModal">
-						💳 登録カード情報の削除</button>
-				</div>
+				<button type="button" class="btn btn-tea-warn btn-sm px-3"
+					data-bs-toggle="modal" data-bs-target="#deleteCardModal">
+					💳 登録カード情報の削除</button>
 			</div>
 		</div>
 
@@ -374,107 +372,124 @@ body.tea-theme {
 				</c:when>
 				<c:otherwise>
 					<div class="table-responsive">
-						<table class="table table-hover align-middle tea-table m-0">
-
-							<table
-								class="table table-hover align-middle tea-table m-0 text-nowrap">
-								<thead>
+						<table class="table table-hover align-middle tea-table m-0 text-nowrap">
+							<thead>
+								<tr>
+									<th>注文日時</th>
+									<th>商品名</th>
+									<th class="text-center">単価</th>
+									<th class="text-center">数量</th>
+									<th class="text-end">合計金額</th>
+									<th class="text-center">決済方法</th>
+								</tr>
+							</thead>
+							<tbody>
+								<c:forEach var="order" items="${orderHistory}">
 									<tr>
-										<th>注文日時</th>
-										<th>商品名</th>
-										<th class="text-center">単価</th>
-										<th class="text-center">数量</th>
-										<th class="text-end">合計金額</th>
-										<th class="text-center">決済方法</th>
+										<td class="text-muted" style="font-size: 0.9rem;"><c:out
+												value="${order.orderDate.toString().replace('T', ' ').substring(0, 16)}" />
+										</td>
+										<td><span class="fw-bold"
+											style="color: var(--tea-dark);"> <c:out
+													value="${order.productName}" />
+										</span></td>
+										<td class="text-center"><fmt:formatNumber
+												value="${order.unitPrice}" type="currency"
+												currencySymbol="¥" maxFractionDigits="0" /></td>
+										<td class="text-center"><c:out value="${order.quantity}" />
+										</td>
+										<td class="text-end fw-bold"
+											style="color: var(--tea-primary);"><fmt:formatNumber
+												value="${order.totalPrice}" type="currency"
+												currencySymbol="¥" maxFractionDigits="0" /></td>
+										<td class="text-center"><span class="badge badge-tea">
+												<c:choose>
+													<c:when test="${order.paymentMethod == 'credit'}">クレジットカード</c:when>
+													<c:when test="${order.paymentMethod == 'bank'}">銀行振込</c:when>
+													<c:when test="${order.paymentMethod == 'convenience'}">コンビニ決済</c:when>
+													<c:when test="${order.paymentMethod == 'cod'}">代金引換</c:when>
+													<c:otherwise>
+														<c:out value="${order.paymentMethod}" />
+													</c:otherwise>
+												</c:choose>
+										</span></td>
 									</tr>
-								</thead>
-								<tbody>
-									<c:forEach var="order" items="${orderHistory}">
-										<tr>
-											<td class="text-muted" style="font-size: 0.9rem;"><c:out
-													value="${order.orderDate.toString().replace('T', ' ').substring(0, 16)}" />
-											</td>
-											<td><span class="fw-bold"
-												style="color: var(--tea-dark);"> <c:out
-														value="${order.productName}" />
-											</span></td>
-											<td class="text-center"><fmt:formatNumber
-													value="${order.unitPrice}" type="currency"
-													currencySymbol="¥" maxFractionDigits="0" /></td>
-											<td class="text-center"><c:out value="${order.quantity}" />
-											</td>
-											<td class="text-end fw-bold"
-												style="color: var(--tea-primary);"><fmt:formatNumber
-													value="${order.totalPrice}" type="currency"
-													currencySymbol="¥" maxFractionDigits="0" /></td>
-											<td class="text-center"><span class="badge badge-tea">
-													<c:choose>
-														<c:when test="${order.paymentMethod == 'credit'}">クレジットカード</c:when>
-														<c:when test="${order.paymentMethod == 'bank'}">銀行振込</c:when>
-														<c:when test="${order.paymentMethod == 'convenience'}">コンビニ決済</c:when>
-														<c:when test="${order.paymentMethod == 'cod'}">代金引換</c:when>
-														<c:otherwise>
-															<c:out value="${order.paymentMethod}" />
-														</c:otherwise>
-													</c:choose>
-											</span></td>
-										</tr>
-									</c:forEach>
-								</tbody>
-							</table>
-							</div>
-							</c:otherwise>
-							</c:choose>
-							</div>
+								</c:forEach>
+							</tbody>
+						</table>
+					</div>
+				</c:otherwise>
+			</c:choose>
+		</div>
 
-							<div
-								class="row g-3 justify-content-between align-items-center mt-3">
-								<div class="col-sm-auto">
-									<a href="${pageContext.request.contextPath}/main"
-										class="btn btn-tea-outline px-4"> ↩️ メイン画面へ戻る </a>
-								</div>
-								<div class="col-sm-auto">
-									<button type="button" class="btn btn-tea-danger px-3"
-										data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
-										⚠️ 退会する</button>
-								</div>
+		<div class="row g-3 justify-content-between align-items-center mt-3">
+			<div class="col-sm-auto">
+				<a href="${pageContext.request.contextPath}/main"
+					class="btn btn-tea-outline px-4"> ↩️ メイン画面へ戻る </a>
+			</div>
+			<div class="col-sm-auto">
+				<button type="button" class="btn btn-tea-danger px-3"
+					data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+					⚠️ 退会する</button>
+			</div>
+		</div>
 
-								<div class="modal fade" id="deleteAccountModal" tabindex="-1"
-									aria-hidden="true">
-									<div class="modal-dialog modal-dialog-centered">
-										<div class="modal-content"
-											style="border-radius: 14px; border: 1px solid rgba(111, 78, 55, 0.15); background-color: #FFFFFF;">
-											<div class="modal-header"
-												style="background-color: rgba(169, 68, 66, 0.03); border-bottom: 1px solid rgba(111, 78, 55, 0.1);">
-												<h5 class="modal-title fw-bold"
-													style="color: var(--tea-badge-required);">退会の確認</h5>
-												<button type="button" class="btn-close"
-													data-bs-dismiss="modal" aria-label="Close"></button>
-											</div>
-											<div class="modal-body py-4 text-center">
-												<div class="mb-3" style="font-size: 2.5rem;">⚠️</div>
-												<h6 class="fw-bold mb-2" style="color: var(--tea-dark);">本当に退会（アカウント削除）しますか？</h6>
-												<p class="text-muted small mb-0">この操作は取り消せません。これまでの購入履歴もすべて削除されます。</p>
-											</div>
-											<div class="modal-footer justify-content-center"
-												style="border-top: 1px solid rgba(111, 78, 55, 0.1); background-color: rgba(111, 78, 55, 0.01);">
-												<button type="button" class="btn btn-tea-outline px-4"
-													data-bs-dismiss="modal">キャンセル</button>
+		<div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered">
+				<div class="modal-content"
+					style="border-radius: 14px; border: 1px solid rgba(111, 78, 55, 0.15); background-color: #FFFFFF;">
+					<div class="modal-header"
+						style="background-color: rgba(169, 68, 66, 0.03); border-bottom: 1px solid rgba(111, 78, 55, 0.1);">
+						<h5 class="modal-title fw-bold"
+							style="color: var(--tea-badge-required);">退会の確認</h5>
+						<button type="button" class="btn-close"
+							data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body py-4 text-center">
+						<div class="mb-3" style="font-size: 2.5rem;">⚠️</div>
+						<h6 class="fw-bold mb-2" style="color: var(--tea-dark);">本当に退会（アカウント削除）しますか？</h6>
+						<p class="text-muted small mb-0">この操作は取り消せません。これまでの購入履歴もすべて削除されます。</p>
+					</div>
+					<div class="modal-footer justify-content-center"
+						style="border-top: 1px solid rgba(111, 78, 55, 0.1); background-color: rgba(111, 78, 55, 0.01);">
+						<button type="button" class="btn btn-tea-outline px-4"
+							data-bs-dismiss="modal">キャンセル</button>
 
-												<form action="DeleteAccountServlet" method="post"
-													class="m-0">
-													<button type="submit" class="btn btn-tea-danger px-4">退会する</button>
-												</form>
-											</div>
-										</div>
-									</div>
-								</div>
+						<form action="DeleteAccountServlet" method="post" class="m-0">
+							<button type="submit" class="btn btn-tea-danger px-4">退会する</button>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
 
+	</div>
 
-							</div>
-							</div>
+	<%@ include file="template/footer.jsp"%>
+
+	<%-- 🌟【重要追加】商品詳細・メイン画面と同期！数量変更パラメータ（added=true）を検知してサイドカートを自動展開するスクリプト --%>
+	<script type="text/javascript">
+		window.addEventListener('DOMContentLoaded', function() {
+			const urlParams = new URLSearchParams(window.location.search);
+
+			if (urlParams.get('added') === 'true') {
+				// 正しい要素ID「sideCart」を指定
+				const sideCartElement = document.getElementById('sideCart');
+				
+				if (sideCartElement) {
+					if (window.bootstrap && bootstrap.Offcanvas) {
+						const bsOffcanvas = new bootstrap.Offcanvas(sideCartElement);
+						bsOffcanvas.show();
+					} else {
+						sideCartElement.classList.add('show');
+						sideCartElement.style.visibility = 'visible';
+					}
+					
+					// メイン画面の退会モーダル同様、URLを綺麗に書き換えてリロード時の多重起動を防ぐ
+					history.replaceState(null, '', window.location.pathname);
+				}
+			}
+		});
+	</script>
 </body>
-
-<%@ include file="template/footer.jsp"%>
-
 </html>
